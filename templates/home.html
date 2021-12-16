@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block content %}
+      <article class="media content-section border-secondary">
+        <div class="media-body">
+          <div class="article-metadata">
+            <a class="mr-2" href="#">Home</a>   
+
+      </article>
+    
+    <div class="container">
+        <h1>search for a movie</h1>
+
+        <form action="/search" method="POST">
+
+        <div>
+            <input type="text" class = "form-control" id="exampleSearch" aria-describedby="searches"
+            placeholder="search..." name = "searches">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Search</button>
+
+        </form>
+    </div>
+
+    
+{% endblock content %}
