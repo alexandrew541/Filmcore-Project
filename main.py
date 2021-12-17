@@ -1,6 +1,27 @@
 from flask import Flask, render_template, redirect, url_for, request
 import urllib.request, json 
 from flask import Flask
+from flask.helpers import flash
+import psycopg2
+
+hostname = 'localhost'
+database = 'filmlibrary'
+username = 'postgres'
+pwd = 'CharFutur144'
+port_id = '5432'
+conn_error = False
+
+try:
+    con = psycopg2.connect(host = hostname, dbname = database, user = username, password = pwd, port = port_id)
+
+    cursor = con.cursor()
+
+    cursor.close()
+    con.close()
+
+except Exception as error:
+    conn_error = True
+    print('Connection to database is faulty')
 
 
 app = Flask(__name__)
