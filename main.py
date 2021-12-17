@@ -2,6 +2,7 @@ from flask import Flask, render_template, redirect, url_for, request
 import urllib.request, json 
 from flask import Flask
 from flask.helpers import flash
+from wtforms.validators import Email
 from forms import RegistrationForm, LoginForm
 import psycopg2
 import bcrypt
@@ -51,8 +52,15 @@ def home():
 def search():
     searchresult = request.form.get("searches")
     searchvalue= '=' + searchresult
+
+    if ' ' in searchvalue:
+        searchvalue = str(searchvalue).replace(' ', '_')
+
     with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&s' + searchvalue) as url:
-        data = json.loads(url.read().decode())    
+        data = json.loads(url.read().decode())
+
+        if data == []:
+            flash('There are no movies with this Title, Please check your spelling or enter another')
     return render_template('search.html', posts = data )
 
 
@@ -71,14 +79,17 @@ def register():
     if form.validate_on_submit():
         
         hashedpw = bcrypt.hashpw(form.password.data.encode('utf-8'),bcrypt.gensalt())
-
         unhashedpw = hashedpw.decode('utf-8')
 
-        user = {"username":form.username.data, "email":form.email.data, "password":unhashedpw}
-        headers = {
-            'Content-Type' : 'application/json'
-        }
-        requests.post(headers = headers, data = json.dumps(user))
+        username = form.username.data
+        pwd = unhashedpw
+        email = form.email.data
+        firstname = form.firstname.data
+        lastname = form.lastname.data
+
+        user = {username, pwd, email, firstname, lastname}
+        
+        
         flash(f'Account created for {form.username.data}!', 'success')
 
         return redirect(url_for('home', data = user))
