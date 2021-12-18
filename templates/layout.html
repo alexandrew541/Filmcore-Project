@@ -34,7 +34,7 @@
               {% if signedin == True %}
                 <a class="nav-item nav-link">Hello {{usernames}}!</a>
                 <a class="nav-item nav-link" href="{{ url_for('logout') }}"> Log Out </a>
-                <a class="nav-item nav-link" href="{{ url_for('watchlist') }}"> Log Out </a>
+                <a class="nav-item nav-link" href="{{ url_for('watchlist') }}"> Watchlist </a>
               {% else %}
                 <a class="nav-item nav-link" href="{{ url_for('login') }}">Log In</a>
                 <a class="nav-item nav-link" href="{{ url_for('register') }}">Register</a>

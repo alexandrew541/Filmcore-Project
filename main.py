@@ -117,14 +117,14 @@ def register():
         user = username, pwd, email, firstname, lastname
 
         cursor.execute("SELECT * FROM users WHERE username ='" + username + "'")
-        if cursor.fetchall() is not None:
-            flash(f'Please Choose a unique username!', 'warning')
+        if cursor.rowcount > 0:
+            flash(f'This username is already taken', 'warning')
             return redirect(url_for('register', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
 
         else:
             cursor.execute("SELECT * FROM users WHERE email ='" + email + "'")
-            if cursor.fetchall() is not None:
-                flash(f'Please Choose a unique username!', 'warning')
+            if cursor.rowcount > 0:
+                flash(f'This email is already associated to another account!', 'warning')
                 return redirect(url_for('register', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
         
             else:
@@ -146,9 +146,13 @@ def register():
 #Watchlist
 @app.route("/watchlist", methods=['GET'])
 def watchlist():
-
+    fkuser_id = str(usersid)
+    print(fkuser_id)
+    cursor.execute("SELECT * FROM watchlist WHERE usersid ='" + fkuser_id + "'")
+    wlist = cursor.fetchall()
     
-    return render_template('watchlist.html', signedin = signedin, usernames = usernames )
+    print(wlist)
+    return render_template('watchlist.html', signedin = signedin, usernames = usernames, usersid = usersid, wlist = wlist )
 
 #Login Page
 @app.route("/login", methods=['GET', 'POST'])
@@ -169,7 +173,7 @@ def login():
             return redirect(url_for('home'))
             
         else:
-            flash('Login Unsuccessful. Please check username and password', 'danger')
+            flash(f'Login Unsuccessful. Please check username and password', 'danger')
     
     return render_template('login.html', title='Login', form=form, signedin = signedin, usernames = usernames, usersid = usersid)
 

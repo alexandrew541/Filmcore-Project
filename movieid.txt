@@ -1,6 +1,9 @@
 email - alexandrew541@hotmail.com
 password - admin
 
+email - alextest@hotmail.com
+password - bomb123
+
 
 {
     "Title": "Spectre",
