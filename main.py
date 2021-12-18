@@ -1,3 +1,4 @@
+from re import T
 from flask import Flask, render_template, redirect, url_for, request
 import urllib.request, json 
 from flask import Flask
@@ -10,30 +11,29 @@ import requests
 
 hostname = 'localhost'
 database = 'filmlibrary'
-username = 'postgres'
-pwd = 'CharFutur144'
-port_id = '5432'
+dbusername = 'postgres'
+dbpwd = 'CharFutur144'
+dbport_id = '5432'
 conn_error = False
 
 #Varible declaration
 signedin = False
 usernames = ""
+usersid = ''
 searchvalue = ''
 movieid = ""
 
 
 #Database Connection String
 try:
-    con = psycopg2.connect(host = hostname, dbname = database, user = username, password = pwd, port = port_id)
-
-    cursor = con.cursor()
-
-    cursor.close()
-    con.close()
+    con = psycopg2.connect(host = hostname, dbname = database, user = dbusername, password = dbpwd, port = dbport_id)
+    con.autocommit = True
 
 except Exception as error:
     conn_error = True
     print('Connection to database is faulty')
+
+cursor = con.cursor()
 
 #flask app and key config declaration
 app = Flask(__name__)
@@ -44,7 +44,7 @@ app.config['SECRET_KEY'] = '7CA5293D0810257F680B2A6CAC9EB291B5405E4D4F42B9A1E26E
 @app.route("/")
 @app.route("/home", methods=['POST' , 'GET'])
 def home():
-    return render_template('home.html' )
+    return render_template('home.html', signedin = signedin, usernames = usernames, usersid = usersid )
 
 
 #Search Results Page
@@ -61,7 +61,7 @@ def search():
 
         if data == []:
             flash('There are no movies with this Title, Please check your spelling or enter another')
-    return render_template('search.html', posts = data )
+    return render_template('search.html', posts = data, signedin = signedin, usernames = usernames, usersid = usersid )
 
 
 #Movie Page
@@ -69,7 +69,7 @@ def search():
 def movie(movieid):
     with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&i=' + movieid) as url:
         data = json.loads(url.read().decode())
-    return render_template('movie.html', movies = data)
+    return render_template('movie.html', movies = data, signedin = signedin, usernames = usernames, usersid = usersid)
 
 
 #Registration Page
@@ -77,7 +77,6 @@ def movie(movieid):
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        
         hashedpw = bcrypt.hashpw(form.password.data.encode('utf-8'),bcrypt.gensalt())
         unhashedpw = hashedpw.decode('utf-8')
 
@@ -86,13 +85,26 @@ def register():
         email = form.email.data
         firstname = form.firstname.data
         lastname = form.lastname.data
+        user = username, pwd, email, firstname, lastname
 
-        user = {username, pwd, email, firstname, lastname}
+        testing = username
+        cursor.execute("SELECT * FROM users WHERE username ='" + testing + "'")
+        account = cursor.fetchall()
+        print(account)
+            
+        cursor.execute("INSERT INTO users(username,pwd,email,firstname,lastname)VALUES('" + username +  "','" + pwd + "', '" + email + "', '" + firstname + "', '" + lastname + "')")
         
-        
-        flash(f'Account created for {form.username.data}!', 'success')
+        cursor.execute("SELECT * FROM users WHERE username ='" + username + "'AND email ='" + email + "'")
+        account = cursor.fetchall()
+        global signedin, usernames, usersid
 
-        return redirect(url_for('home', data = user))
+        signedin = True
+        usernames = username
+        usersid = account[0]
+
+        flash(f'Account created for {username}!', 'success')
+
+        return redirect(url_for('home', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
     return render_template('register.html', title='Register', form=form, signedin = signedin, usernames = usernames)
 
 
@@ -101,13 +113,14 @@ def register():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        cursor.execute("SELECT * FROM users WHERE email = ?" , form.email.data )
+        scriptvalues = form.email.data
+        script = "SELECT * FROM users WHERE email ='" + scriptvalues + "'"
+        cursor.execute(script)
         account = cursor.fetchone()
-        print(account)
         hashedpw = bcrypt.checkpw(form.password.data.encode('utf-8'), account[2].encode('utf-8'))
         
         if account and hashedpw:
-            global signedin, usernames
+            global signedin, usernames, usersid
             signedin = True
             usersid = account[0]
             usernames = account[1]
@@ -116,7 +129,7 @@ def login():
         else:
             flash('Login Unsuccessful. Please check username and password', 'danger')
     
-    return render_template('login.html', title='Login', form=form, signedin = signedin)
+    return render_template('login.html', title='Login', form=form, signedin = signedin, usernames = usernames, usersid = usersid)
 
 
 #Logout Function

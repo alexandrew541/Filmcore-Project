@@ -1,3 +1,7 @@
+email - alexandrew541@hotmail.com
+password - admin
+
+
 {
     "Title": "Spectre",
     "Year": "2015",
