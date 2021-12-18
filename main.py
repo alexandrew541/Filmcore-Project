@@ -1,13 +1,10 @@
-from re import T
 from flask import Flask, render_template, redirect, url_for, request
 import urllib.request, json 
 from flask import Flask
 from flask.helpers import flash
-from wtforms.validators import Email
-from forms import RegistrationForm, LoginForm
+from forms import MovieSubmit, RegistrationForm, LoginForm
 import psycopg2
 import bcrypt
-import requests
 
 hostname = 'localhost'
 database = 'filmlibrary'
@@ -60,16 +57,46 @@ def search():
         data = json.loads(url.read().decode())
 
         if data == []:
-            flash('There are no movies with this Title, Please check your spelling or enter another')
+            flash(f'There are no movies with this Title, Please check your spelling or enter another' , 'warning')
+
     return render_template('search.html', posts = data, signedin = signedin, usernames = usernames, usersid = usersid )
 
 
 #Movie Page
-@app.route("/movie/<string:movieid>", methods = ['GET'])
+@app.route("/movie/<string:movieid>", methods = ['GET', 'POST'])
 def movie(movieid):
     with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&i=' + movieid) as url:
         data = json.loads(url.read().decode())
-    return render_template('movie.html', movies = data, signedin = signedin, usernames = usernames, usersid = usersid)
+
+    stringuser = str(usersid)
+
+    if usersid != '':
+        cursor.execute("SELECT * FROM watchlist WHERE movieid  ='" + movieid + "'AND usersid ='" + stringuser + "'")
+        if cursor.rowcount > 0:
+            add = True
+
+        else:
+            if cursor.rowcount == 0:
+                
+                add = False
+                
+    else:
+        if usersid == '':
+            add = True
+
+    movieName = data['Title']
+    movieImage = data['Poster']
+    movieType = data['Type']
+    movieYear = data['Year']
+    movieID = movieid
+
+    form = MovieSubmit()
+
+    if form.validate_on_submit():
+        cursor.execute("INSERT INTO watchlist(movieid, moviename, movieimage, movieType, movieyear, usersID) VALUES('" + movieID +  "','" + movieName + "', '" + movieImage + "', '" + movieType + "', '" + movieYear + "', '" + stringuser + "')")
+        flash(f'{movieName} has been added to your watchlist!', 'success') 
+
+    return render_template('movie.html', movies = data, form = form, signedin = signedin, usernames = usernames, usersid = usersid, add = add)
 
 
 #Registration Page
@@ -80,6 +107,8 @@ def register():
         hashedpw = bcrypt.hashpw(form.password.data.encode('utf-8'),bcrypt.gensalt())
         unhashedpw = hashedpw.decode('utf-8')
 
+        global signedin, usernames, usersid
+
         username = form.username.data
         pwd = unhashedpw
         email = form.email.data
@@ -87,26 +116,39 @@ def register():
         lastname = form.lastname.data
         user = username, pwd, email, firstname, lastname
 
-        testing = username
-        cursor.execute("SELECT * FROM users WHERE username ='" + testing + "'")
-        account = cursor.fetchall()
-        print(account)
-            
-        cursor.execute("INSERT INTO users(username,pwd,email,firstname,lastname)VALUES('" + username +  "','" + pwd + "', '" + email + "', '" + firstname + "', '" + lastname + "')")
+        cursor.execute("SELECT * FROM users WHERE username ='" + username + "'")
+        if cursor.fetchall() is not None:
+            flash(f'Please Choose a unique username!', 'warning')
+            return redirect(url_for('register', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
+
+        else:
+            cursor.execute("SELECT * FROM users WHERE email ='" + email + "'")
+            if cursor.fetchall() is not None:
+                flash(f'Please Choose a unique username!', 'warning')
+                return redirect(url_for('register', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
         
-        cursor.execute("SELECT * FROM users WHERE username ='" + username + "'AND email ='" + email + "'")
-        account = cursor.fetchall()
-        global signedin, usernames, usersid
+            else:
+                cursor.execute("INSERT INTO users(username,pwd,email,firstname,lastname)VALUES('" + username +  "','" + pwd + "', '" + email + "', '" + firstname + "', '" + lastname + "')")
+                
+                cursor.execute("SELECT * FROM users WHERE username ='" + username + "'AND email ='" + email + "'")
+                account = cursor.fetchall()
+                
+                signedin = True
+                usernames = username
+                usersid = account[0]
 
-        signedin = True
-        usernames = username
-        usersid = account[0]
+                flash(f'Account created for {username}!', 'success')
 
-        flash(f'Account created for {username}!', 'success')
-
-        return redirect(url_for('home', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
+                return redirect(url_for('home', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
     return render_template('register.html', title='Register', form=form, signedin = signedin, usernames = usernames)
 
+
+#Watchlist
+@app.route("/watchlist", methods=['GET'])
+def watchlist():
+
+    
+    return render_template('watchlist.html', signedin = signedin, usernames = usernames )
 
 #Login Page
 @app.route("/login", methods=['GET', 'POST'])

@@ -7,4 +7,15 @@
               <a class="mr-2">{{ movies.Plot }}</a>
               
         </article>
+        {% if (signedin == True) and (add == False) %}
+        <form method="POST" action="">
+          {{ form.hidden_tag() }}
+          <fieldset class="form-group">
+            <div class="form-group">
+                {{ form.submit(class="btn btn-success") }}
+              </div>
+            </fieldset>
+          </form>
+        {%endif%}
+        
 {% endblock content %}
