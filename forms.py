@@ -1,6 +1,5 @@
-from flask.app import Flask
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 
 
@@ -22,12 +21,14 @@ class RegistrationForm(FlaskForm):
         if True:
             raise ValidationError('That username is different, Please choose another.')
 
+class MovieSubmit(FlaskForm):
+    submit = SubmitField('Add to watchlist')
+
 class LoginForm(FlaskForm):
     email = StringField('Email',
                         validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
 
-class MovieSubmit(FlaskForm):
-    submit = SubmitField('Add to watchlist')
+
 

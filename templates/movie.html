@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
         <article class="media content-section border-secondary">
+          <a class="nav-item nav-link btn btn-danger backbtn" style="float: left;" href="{{ url_for('search') }}">Back</a>
           <div class="media-body">
             <div class="article-metadata">
               <a class="mr-2">{{ movies.Title }}</a>
@@ -19,3 +20,4 @@
         {%endif%}
         
 {% endblock content %}
+{% include 'footer.html' %}

@@ -47,13 +47,17 @@ def home():
 #Search Results Page
 @app.route("/search", methods = ['POST', 'GET'])
 def search():
-    searchresult = request.form.get("searches")
-    searchvalue= '=' + searchresult
+    global searchvalue
 
-    if ' ' in searchvalue:
-        searchvalue = str(searchvalue).replace(' ', '_')
+    if searchvalue != '':
+        pass
 
-    with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&s' + searchvalue) as url:
+    else:
+        searchvalue = request.form.get("searches")
+        if ' ' in searchvalue:
+            searchvalue = str(searchvalue).replace(' ', '_')
+
+    with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&s=' + searchvalue) as url:
         data = json.loads(url.read().decode())
 
         if data == []:
@@ -153,6 +157,7 @@ def watchlist():
     
     print(wlist)
     return render_template('watchlist.html', signedin = signedin, usernames = usernames, usersid = usersid, wlist = wlist )
+
 
 #Login Page
 @app.route("/login", methods=['GET', 'POST'])

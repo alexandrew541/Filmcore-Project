@@ -2,19 +2,19 @@
 {% block content %}
 
     <div class="container">
-        <h1>search for a movie</h1>
-
         <form action="/search" method="POST">
 
-        <div>
-            <input type="text" class = "form-control" id="exampleSearch" aria-describedby="searches"
+        <div class="input-group mb-3">
+            <input type="search" class = "form-control" id="exampleSearch" aria-describedby="searches"
             placeholder="search..." name = "searches">
-            <button type="reset" class="btn">X</button>
+            <button type="reset" class=" btn clearbutton">&times;</button>
         </div>
 
         <button type="submit" class="btn btn-primary">Search</button>
 
         </form>
     </div>
-    
+{% include 'footer.html' %}
 {% endblock content %}
+
+

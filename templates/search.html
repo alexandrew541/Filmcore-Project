@@ -6,10 +6,11 @@
           <div class="media-body">
             <div class="article-metadata">
               <a class="mr-2" href="{{url_for('movie',movieid = post.imdbID)}}">{{ post.Title }}</a>
-              <img src= "{{ post.poster }}" style="width: 20vw; min-width: 60px;" />
+              <img src= "{{ post.poster }}" style="width: 5vw; min-width: 20px;" />
               <small class="text-muted">{{ post.Year }} {{post.Type}} </small>
         </article>
     {% endfor %}
 {% endblock content %}
+{% include 'footer.html' %}
 
 
