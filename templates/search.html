@@ -1,16 +1,20 @@
 {% extends "layout.html" %}
 {% block content %}
-    <a class="nav-item nav-link btn btn-danger backbtn" style="float: left;" href="{{ url_for('home') }}">Back</a>
+<div class="container defpage"></div>
+    <a class="nav-item nav-link btn btn-danger backbtn" style="margin-left: 54vh;" href="{{ url_for('home') }}">Back</a>
+
     {% for post in posts.Search %}
-        <article class="media content-section border-secondary">
+        <article class="media content-section border-secondary" style="float:left;">
           <div class="media-body">
-            <div class="article-metadata">
               <a class="mr-2" href="{{url_for('movie',movieid = post.imdbID)}}">{{ post.Title }}</a>
-              <img src= "{{ post.poster }}" style="width: 5vw; min-width: 20px;" />
-              <small class="text-muted">{{ post.Year }} {{post.Type}} </small>
+              <div class="media-body">
+              <img src= "{{ post.Poster }}" style="width: 5vw; min-width: 20px;" />
+              <div class="media-body">
+              <small class="text-muted">{{ post.Year }} : {{post.Type}} </small>
         </article>
     {% endfor %}
+
 {% endblock content %}
-{% include 'footer.html' %}
+
 
 

@@ -41,6 +41,10 @@ app.config['SECRET_KEY'] = '7CA5293D0810257F680B2A6CAC9EB291B5405E4D4F42B9A1E26E
 @app.route("/")
 @app.route("/home", methods=['POST' , 'GET'])
 def home():
+    global searchvalue
+    searchvalue = ''
+    if conn_error == True:
+        flash(f'Database connection error' , 'warning')
     return render_template('home.html', signedin = signedin, usernames = usernames, usersid = usersid )
 
 
@@ -53,7 +57,8 @@ def search():
         pass
 
     else:
-        searchvalue = request.form.get("searches")
+        if searchvalue == '':
+            searchvalue = request.form.get("searches")
         if ' ' in searchvalue:
             searchvalue = str(searchvalue).replace(' ', '_')
 

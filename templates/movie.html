@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
+<div class="container hmpage"></div>
         <article class="media content-section border-secondary">
           <a class="nav-item nav-link btn btn-danger backbtn" style="float: left;" href="{{ url_for('search') }}">Back</a>
           <div class="media-body">
@@ -18,6 +19,6 @@
             </fieldset>
           </form>
         {%endif%}
-        
+
+
 {% endblock content %}
-{% include 'footer.html' %}

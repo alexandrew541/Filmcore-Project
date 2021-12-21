@@ -1,13 +1,20 @@
+@charset "UTF-8";
+
 body {
   background: #eeeeee;
   color: #333333;
-  margin-top: 5rem;
   font-family: Helvetica !important;
+  width: 100%;
+  margin: auto;
   
 }
 
+.maincon{
+  width: 90% !important;
+}
+
 .backbtn{
-  margin-bottom: 1%;
+  margin-bottom: 4px;
   width: 75px;
 }
 
@@ -40,7 +47,7 @@ h1, h2, h3, h4, h5, h6 {
   padding: 10px 20px;
   border: 1px solid #dddddd;
   border-radius: 3px;
-  margin-bottom: 20px;
+  
 }
 
 .article-title {
@@ -91,7 +98,7 @@ a.article-title:hover {
 }
 
 .footer {
-  position: fixed;
+  position: absolute;
   left: 0;
   bottom: 0;
   width: 100%;
@@ -127,6 +134,53 @@ a.article-title:hover {
   transition: .1s;
 }
 
-.container{
+.content-section{
+  width: 50%;
   margin: auto;
 }
+
+
+.hmpage{
+  height: 10vh;
+}
+
+html, body {
+  height:100%;
+}
+
+.container{
+  min-height: 100%;
+}
+
+.searchbars{
+  height: 60vh;
+}
+
+#parent {
+  display: table;
+  width: 100%;
+}
+#form_search {
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.btn-default
+{
+  background-color: #CA4A62;
+  color:#FFF;
+}
+.btn-default:hover, .btn-default:focus, .btn-default:active, .btn-default.active, .open .dropdown-toggle.btn-default {
+
+  background-color: #ca2d4a;
+  color:#FFF;
+ }
+
+ .watchlistbtn:hover{
+  color: #ca2d4a;
+ }
+
+ .defpage{
+  height: 13vh;
+ }
