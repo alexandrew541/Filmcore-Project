@@ -1,13 +1,36 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="container hmpage"></div>
+<div class="container defpage"></div>
+        <a class="nav-item nav-link btn btn-danger backbtn" href="{{ url_for('search') }}">Back</a>
         <article class="media content-section border-secondary">
-          <a class="nav-item nav-link btn btn-danger backbtn" style="float: left;" href="{{ url_for('search') }}">Back</a>
+          
           <div class="media-body">
             <div class="article-metadata">
               <a class="mr-2">{{ movies.Title }}</a>
+              <a class="mr-2">{{ movies.Year }}</a>
+              <a class="mr-2">{{ movies.Rated }}</a>
+              <a class="mr-2">{{ movies.Released }}</a>
+              <a class="mr-2">{{ movies.Runtime }}</a>
+              <a class="mr-2">{{ movies.Genre }}</a>
+              <a class="mr-2">{{ movies.Director }}</a>
+              <a class="mr-2">{{ movies.Writer }}</a>
+              <a class="mr-2">{{ movies.Actors }}</a>
               <a class="mr-2">{{ movies.Plot }}</a>
-              
+              <a class="mr-2">{{ movies.Language }}</a>
+              <a class="mr-2">{{ movies.Country }}</a>
+              <a class="mr-2">{{ movies.Awards}}</a>
+              <a class="mr-2">{{ movies.Poster }}</a>
+              <a class="mr-2">{{ movies.Ratings[0].Value }}</a>
+              <a class="mr-2">{{ movies.Ratings[0].Source }}</a>
+              <a class="mr-2">{{ movies.Metascore }}</a>
+              <a class="mr-2">{{ movies.imdbRating }}</a>
+              <a class="mr-2">{{ movies.imdbVotes }}</a>
+              <a class="mr-2">{{ movies.Type }}</a>
+              <a class="mr-2">{{ movies.DVD }}</a>
+              <a class="mr-2">{{ movies.BoxOffice }}</a>
+              <a class="mr-2">{{ movies.Production }}</a>
+              <a class="mr-2">{{ movies.Website}}</a>
+              <a class="mr-2">{{ movies.Production }}</a>
         </article>
         {% if (signedin == True) and (add == False) %}
         <form method="POST" action="">

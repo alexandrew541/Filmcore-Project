@@ -182,5 +182,9 @@ html, body {
  }
 
  .defpage{
-  height: 13vh;
+  height: 14vh;
+ }
+
+ .regpage{
+  height: 3vh;
  }

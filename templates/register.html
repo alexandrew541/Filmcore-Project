@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
+<div class="container defpage"></div>
     <div class="content-section">
         <form method="POST" action="">
             {{ form.hidden_tag() }}
@@ -86,14 +87,16 @@
                 </div>
             </fieldset>
             <div class="form-group">
-                {{ form.submit(class="btn btn-success") }}
+                {{ form.submit(class="btn btn-default") }}
             </div>
         </form>
-    </div>
+    
     <div class="border-top pt-3">
         <small class="text-muted">
-            Already Have An Account? <a class="ml-2" href="{{ url_for('login') }}">Sign In</a>
+             <a class="ml-2" href="{{ url_for('login') }}">Log in Here</a>
         </small>
     </div>
-
+    
+</div>
+<div class="container regpage"></div>
 {% endblock content %}
