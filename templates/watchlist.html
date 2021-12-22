@@ -1,15 +1,19 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container defpage"></div>
+<p1 class = "titles">{{usernames}}'s Watchlist</p1>
+    <div class="container maincon">
         {% for row in wlist %}
-            <article class="media content-section border-secondary">
+        <article class="media content-section border-secondary searchpages">
+            <div class="media-body">
+                <a class="searchtitle" href="{{url_for('watchlist_movie',movieid = row[1])}}">{{ row[2] }}</a>
                 <div class="media-body">
-                <div class="article-metadata">
-                    <a class="mr-2">{{ row[2] }}</a>
-                    <a class="mr-2">{{ row[4] }}</a>
-                    <a class="mr-2">{{ row[5] }}</a>     
-            </article>
+                <img src= "{{ row[3] }}" style="width: 5vw; height: 15vh;" />
+                <div class="media-body">
+                <small class="text yeartype">{{ row[4] }} : {{row[5]}} </small>
+          </article>
         {% endfor %}
-
+    </div>
 {% endblock content %}
-{% include 'footer.html' %}
+
+

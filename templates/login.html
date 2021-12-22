@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container defpage"></div>
-    <div class="content-section">
+    <div class="content-section bg-secondary" style="color: #EEEEEE;">
         <form method="POST" action="">
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
@@ -40,7 +40,7 @@
     
     <div class="border-top pt-3">
         <small class="text-muted">
-            <a class="ml-2" href="{{ url_for('register') }}">Sign up here!</a>
+            <a class="ml-2 formlinks" href="{{ url_for('register') }}">Sign up here!</a>
         </small>
     </div>
 </div>

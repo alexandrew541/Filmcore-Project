@@ -108,6 +108,15 @@ def movie(movieid):
     return render_template('movie.html', movies = data, form = form, signedin = signedin, usernames = usernames, usersid = usersid, add = add)
 
 
+
+@app.route("/watchlist/movie/<string:movieid>", methods = ['GET', 'POST'])
+def watchlist_movie(movieid):
+    with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&i=' + movieid) as url:
+        data = json.loads(url.read().decode())
+
+    return render_template('watchlist_movie.html', movies = data, signedin = signedin, usernames = usernames, usersid = usersid)
+
+
 #Registration Page
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -140,8 +149,8 @@ def register():
                 cursor.execute("INSERT INTO users(username,pwd,email,firstname,lastname)VALUES('" + username +  "','" + pwd + "', '" + email + "', '" + firstname + "', '" + lastname + "')")
                 
                 cursor.execute("SELECT * FROM users WHERE username ='" + username + "'AND email ='" + email + "'")
-                account = cursor.fetchall()
-                
+                account = cursor.fetchone()
+
                 signedin = True
                 usernames = username
                 usersid = account[0]
@@ -156,11 +165,8 @@ def register():
 @app.route("/watchlist", methods=['GET'])
 def watchlist():
     fkuser_id = str(usersid)
-    print(fkuser_id)
     cursor.execute("SELECT * FROM watchlist WHERE usersid ='" + fkuser_id + "'")
     wlist = cursor.fetchall()
-    
-    print(wlist)
     return render_template('watchlist.html', signedin = signedin, usernames = usernames, usersid = usersid, wlist = wlist )
 
 

@@ -1,12 +1,21 @@
+Unused data points   
+<a class="mr-2">{{ movies.Ratings[2].Value }}</a>
+<a class="mr-2">{{ movies.Ratings[2].Source }}</a>
+<a class="mr-2">{{ movies.Production }}</a>
+<a class="mr-2">{{ movies.Website}}</a>
+<a class="mr-2">{{ movies.Response }}</a>
+
 email - alexandrew541@hotmail.com
 password - admin
 
 email - alextest@hotmail.com
 password - bomb123
 
+email - tommy@aol.com
+password - password123
 
 {
-    "Title": "Spectre",
+    "Title": "Spectre", 
     "Year": "2015",
     "Rated": "PG-13",
     "Released": "06 Nov 2015",

@@ -1,32 +1,12 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container movstyle"></div>
-        <a class="btn btn-danger moviebtn" href="{{ url_for('search') }}">Back</a>
-
-        {% if (signedin == True) and (add == False) %}
-        <form method="POST" action="">
-          {{ form.hidden_tag() }}
+        <a class="btn btn-danger moviebtn" href="{{ url_for('watchlist') }}">Back</a>
           <fieldset class="form-group">
             <div class="form-group">
-                {{ form.submit(class="btn btn-default") }}
                 <a href="http://imdb.com/title/{{movies.imdbID}}" target="_blank" class="btn btn-imdb">IMDB</a>
               </div>
             </fieldset>
-          </form>
-          {%endif%}
-        {% if (signedin == True) and (add == True) %}
-          <div class="form-group">
-            <a href="#" class="btn btn-default disabled" role="button" aria-disabled="true" style="height: 41px;">Already in watchlist</a>
-            <a href="http://imdb.com/title/{{movies.imdbID}}" target="_blank" class="btn btn-imdb">IMDB</a>
-          </div>
-        {%endif%}
-        {% if (signedin == False) %}
-        <div class="form-group">
-          <a href="#" class="btn btn-default disabled" role="button" aria-disabled="true" style="height: 41px;">Add to watchlist</a>
-          <a href="http://imdb.com/title/{{movies.imdbID}}" target="_blank" class="btn btn-imdb">IMDB</a>
-        </div>
-        {%endif%} 
-
         <article class="media content-section border-secondary moviepages" style="width: 150vh;">
           
           <div class="media-body">
