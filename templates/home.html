@@ -15,11 +15,14 @@
                     placeholder="search..." name = "searches">
                     <button type="reset" class=" btn clearbutton">&times;</button>
                 </div>
-        
                 <button type="submit" class="btn btn-default">Search</button>
-                
+                    {% if error %}
+                    <p class=error><strong>Error:</strong> {{ error }}
+                    {% endif %} 
                 </form>
+                
             </div>
+
         </div>
     </header>
 

@@ -1,7 +1,6 @@
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, url_for, request, flash
 import urllib.request, json 
 from flask import Flask
-from flask.helpers import flash
 from forms import MovieSubmit, RegistrationForm, LoginForm
 import psycopg2
 import bcrypt
@@ -52,6 +51,7 @@ def home():
 @app.route("/search", methods = ['POST', 'GET'])
 def search():
     global searchvalue
+    error = None
 
     if searchvalue != '':
         pass
@@ -65,10 +65,11 @@ def search():
     with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&s=' + searchvalue) as url:
         data = json.loads(url.read().decode())
 
-        if data == []:
-            flash(f'There are no movies with this Title, Please check your spelling or enter another' , 'warning')
+        if data['Response'] == "False":
+            error = 'Invalid credentials'
+            return render_template('home.html', signedin = signedin, usernames = usernames, usersid = usersid, error = error )
 
-    return render_template('search.html', posts = data, signedin = signedin, usernames = usernames, usersid = usersid )
+    return render_template('search.html', posts = data, signedin = signedin, usernames = usernames, usersid = usersid, searchvalue = searchvalue, error = error )
 
 
 #Movie Page

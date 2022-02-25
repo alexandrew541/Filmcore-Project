@@ -1,0 +1,15 @@
+LIST OF AP2 FEATURES AND REQUIREMENTS
+
+1. Flash messages working
+2. Get database onto a server
+3. Home page recomendations/changes
+4. Account page
+5. Watchlist delete button
+6. Account delete button
+7. Account Edit function
+8. Webpage scaling
+9. Search feature bugs removed
+10. Search page/ Watchlist layout changed
+11. Website footer
+12. Logo in navbar
+13. Cosign similarity implementation

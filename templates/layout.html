@@ -36,8 +36,9 @@
                 <a class="btn btn-danger" style="margin-left: 2vh;"  href="{{ url_for('logout') }}">Log Out</a>
                 
               {% else %}
+                <a class="nav-item nav-link watchlistbtn" style="margin-left: 1vh; color: #CA4A62 " href="{{ url_for('login') }}"> Watchlist </a>
                 <a class="nav-item nav-link" href="{{ url_for('login') }}">Log In</a>
-                <a class="btn btn-default" style="margin-left: 2vh;" href="{{ url_for('register') }}">Sign up</a>
+                
               {%endif%}
            
           </div>
@@ -46,16 +47,19 @@
       </nav>
     </header>
     <main role="main">
-          {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-              {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">
-                  {{ message }}
-                </div>
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <ul class="flashes">
+              {% for message in messages %}
+                <div class="message_flash">{{ message }}</div>
               {% endfor %}
-            {% endif %}
-          {% endwith %}
-          {% block content %}{% endblock %}
+          </ul>
+        {% endif %}
+        {% endwith %}
+      {% block body %}
+      {% endblock %}
+
+      {% block content %}{% endblock %}
       </div>
     </main>
 </body>
