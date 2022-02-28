@@ -1,3 +1,4 @@
+from pickle import FALSE
 from flask import Flask, render_template, redirect, url_for, request, flash
 import urllib.request, json 
 from flask import Flask
@@ -169,6 +170,19 @@ def watchlist():
     cursor.execute("SELECT * FROM watchlist WHERE usersid ='" + fkuser_id + "'")
     wlist = cursor.fetchall()
     return render_template('watchlist.html', signedin = signedin, usernames = usernames, usersid = usersid, wlist = wlist )
+
+
+#Profile Page
+@app.route("/profile/<string:usernames>", methods=['GET'])
+def profile(usernames):
+    if signedin == FALSE:
+        return redirect('login.html')
+    
+    else:
+        cursor.execute("SELECT * FROM users WHERE userid='"+ usersid + "'")
+        profiledetail = cursor.fetchone() 
+        
+        return render_template('profile.html', signedin = signedin, usernames = usernames, usersid = usersid, profiledetail = profiledetail )
 
 
 #Login Page

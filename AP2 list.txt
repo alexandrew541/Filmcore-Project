@@ -13,3 +13,6 @@ LIST OF AP2 FEATURES AND REQUIREMENTS
 11. Website footer
 12. Logo in navbar
 13. Cosign similarity implementation
+14. Second layer of  login verification
+15. Admin accounts
+16. Admin privledges such as account deletion
