@@ -1,7 +1,9 @@
 LIST OF AP2 FEATURES AND REQUIREMENTS
 
+  -----------COMPLETE
+
 1. Flash messages working
-2. Get database onto a server
+2. Get database onto a server  -----------COMPLETE      
 3. Home page recomendations/changes
 4. Account page
 5. Watchlist delete button

@@ -1,4 +1,3 @@
-from pickle import FALSE
 from flask import Flask, render_template, redirect, url_for, request, flash
 import urllib.request, json 
 from flask import Flask
@@ -6,10 +5,10 @@ from forms import MovieSubmit, RegistrationForm, LoginForm
 import psycopg2
 import bcrypt
 
-hostname = 'localhost'
-database = 'filmlibrary'
+hostname = 'filmcore.cuamqg1s0vh3.eu-west-2.rds.amazonaws.com'
+database = 'filmcore'
 dbusername = 'postgres'
-dbpwd = 'CharFutur144'
+dbpwd = 'filmcore'
 dbport_id = '5432'
 conn_error = False
 
@@ -175,7 +174,7 @@ def watchlist():
 #Profile Page
 @app.route("/profile/<string:usernames>", methods=['GET'])
 def profile(usernames):
-    if signedin == FALSE:
+    if signedin == False:
         return redirect('login.html')
     
     else:
