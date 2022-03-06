@@ -69,7 +69,13 @@ def search():
             error = 'Invalid credentials'
             return render_template('home.html', signedin = signedin, usernames = usernames, usersid = usersid, error = error )
 
-    return render_template('search.html', posts = data, signedin = signedin, usernames = usernames, usersid = usersid, searchvalue = searchvalue, error = error )
+    if '_' in searchvalue:
+        displaysearch = str(searchvalue).replace('_', ' ') 
+    else:
+        displaysearch = searchvalue
+
+    return render_template('search.html', posts = data, signedin = signedin, usernames = usernames, usersid = usersid, searchvalue = searchvalue, 
+    error = error, displaysearch = displaysearch )
 
 
 #Movie Page
@@ -78,6 +84,7 @@ def movie(movieid):
     with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&i=' + movieid) as url:
         data = json.loads(url.read().decode())
 
+    
     stringuser = str(usersid)
 
     if usersid != '':
@@ -165,6 +172,8 @@ def register():
 #Watchlist
 @app.route("/watchlist", methods=['GET'])
 def watchlist():
+    if signedin == False:
+        return redirect(url_for('login'))
     fkuser_id = str(usersid)
     cursor.execute("SELECT * FROM watchlist WHERE usersid ='" + fkuser_id + "'")
     wlist = cursor.fetchall()
@@ -175,7 +184,7 @@ def watchlist():
 @app.route("/profile/<string:usernames>", methods=['GET'])
 def profile(usernames):
     if signedin == False:
-        return redirect('login.html')
+        return redirect(url_for('login'))
     
     else:
         cursor.execute("SELECT * FROM users WHERE userid='"+ usersid + "'")
