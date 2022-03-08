@@ -1,9 +1,10 @@
 from flask import Flask, render_template, redirect, url_for, request, flash
 import urllib.request, json 
 from flask import Flask
-from forms import MovieSubmit, RegistrationForm, LoginForm
+from forms import MovieSubmit, RegistrationForm, LoginForm, MovieDelete
 import psycopg2
 import bcrypt
+import requests
 
 hostname = 'filmcore.cuamqg1s0vh3.eu-west-2.rds.amazonaws.com'
 database = 'filmcore'
@@ -45,6 +46,24 @@ def home():
     if conn_error == True:
         flash(f'Database connection error' , 'warning')
     return render_template('home.html', signedin = signedin, usernames = usernames, usersid = usersid )
+
+
+#Top250 Page
+@app.route("/top250", methods=['GET'])
+def top250():
+
+    url = 'https://imdb-api.com/en/API/Top250Movies/k_10ri6dyy'
+
+    headers={'User-Agent': 'Mozilla/5.0'}
+
+    data = requests.get(url=url, headers=headers)
+    binary = data.content
+    
+
+    #req = Request('https://imdb-api.com/en/API/Top250Movies/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+    #data = urlopen(req).read()
+
+    return render_template('top250.html', data = binary, signedin = signedin, usernames = usernames, usersid = usersid )
 
 
 #Search Results Page
@@ -121,8 +140,14 @@ def movie(movieid):
 def watchlist_movie(movieid):
     with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&i=' + movieid) as url:
         data = json.loads(url.read().decode())
+    
+    form = MovieDelete()
 
-    return render_template('watchlist_movie.html', movies = data, signedin = signedin, usernames = usernames, usersid = usersid)
+    if form.validate_on_submit():
+        cursor.execute("DELETE FROM watchlist WHERE movieid  ='" + movieid + "'AND usersid ='" + usersid + "'")
+
+
+    return render_template('watchlist_movie.html', movies = data, form = form, signedin = signedin, usernames = usernames, usersid = usersid)
 
 
 #Registration Page

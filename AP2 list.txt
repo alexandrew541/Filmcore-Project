@@ -12,6 +12,7 @@ Webpage scaling
 Search feature bugs removed
 Search page/ Watchlist layout changed
 Cosign similarity implementation
+Top250 page implementation
 
 -------------LESS IMPORTANT---------
 Website footer
