@@ -135,7 +135,18 @@ def movie(movieid):
     return render_template('movie.html', movies = data, form = form, signedin = signedin, usernames = usernames, usersid = usersid, add = add)
 
 
+#Watchlist
+@app.route("/watchlist", methods=['GET'])
+def watchlist():
+    if signedin == False:
+        return redirect(url_for('login'))
+    fkuser_id = str(usersid)
+    cursor.execute("SELECT * FROM watchlist WHERE usersid ='" + fkuser_id + "'")
+    wlist = cursor.fetchall()
+    return render_template('watchlist.html', signedin = signedin, usernames = usernames, usersid = usersid, wlist = wlist )
 
+
+#Watchlist movie page
 @app.route("/watchlist/movie/<string:movieid>", methods = ['GET', 'POST'])
 def watchlist_movie(movieid):
     with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&i=' + movieid) as url:
@@ -143,8 +154,12 @@ def watchlist_movie(movieid):
     
     form = MovieDelete()
 
+    stringuser = str(usersid)
+    strmovie = str(movieid)
+
     if form.validate_on_submit():
-        cursor.execute("DELETE FROM watchlist WHERE movieid  ='" + movieid + "'AND usersid ='" + usersid + "'")
+        cursor.execute("DELETE FROM watchlist WHERE movieid ='" + strmovie + "'AND usersid ='" + stringuser + "'")
+        return redirect(url_for('watchlist'))
 
 
     return render_template('watchlist_movie.html', movies = data, form = form, signedin = signedin, usernames = usernames, usersid = usersid)
@@ -194,33 +209,27 @@ def register():
     return render_template('register.html', title='Register', form=form, signedin = signedin, usernames = usernames)
 
 
-#Watchlist
-@app.route("/watchlist", methods=['GET'])
-def watchlist():
-    if signedin == False:
-        return redirect(url_for('login'))
-    fkuser_id = str(usersid)
-    cursor.execute("SELECT * FROM watchlist WHERE usersid ='" + fkuser_id + "'")
-    wlist = cursor.fetchall()
-    return render_template('watchlist.html', signedin = signedin, usernames = usernames, usersid = usersid, wlist = wlist )
-
-
 #Profile Page
-@app.route("/profile/<string:usernames>", methods=['GET'])
-def profile(usernames):
+@app.route("/profile/<int:usersid>", methods=['GET'])
+def profile(usersid):
     if signedin == False:
         return redirect(url_for('login'))
     
     else:
-        cursor.execute("SELECT * FROM users WHERE userid='"+ usersid + "'")
-        profiledetail = cursor.fetchone() 
+        usernameid = str(usersid)
+        cursor.execute("SELECT * FROM users WHERE userid='"+ usernameid + "'")
+        account = cursor.fetchone() 
+        print(account)
         
-        return render_template('profile.html', signedin = signedin, usernames = usernames, usersid = usersid, profiledetail = profiledetail )
+    return render_template('profile.html', signedin = signedin, usernames = usernames, usersid = usersid, account = account )
 
 
 #Login Page
 @app.route("/login", methods=['GET', 'POST'])
 def login():
+    global signedin
+    if signedin == True:
+        return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
         scriptvalues = form.email.data
@@ -230,7 +239,7 @@ def login():
         hashedpw = bcrypt.checkpw(form.password.data.encode('utf-8'), account[2].encode('utf-8'))
         
         if account and hashedpw:
-            global signedin, usernames, usersid
+            global usernames, usersid
             signedin = True
             usersid = account[0]
             usernames = account[1]
@@ -246,7 +255,10 @@ def login():
 @app.route("/logout", methods=['GET'])
 def logout():
     global signedin
-    signedin = False
+    if signedin == False:
+        return redirect(url_for('home'))
+    else:
+        signedin = False
     return redirect(url_for('home'))
 
 

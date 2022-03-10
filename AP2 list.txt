@@ -5,7 +5,6 @@ LIST OF AP2 FEATURES AND REQUIREMENTS
 Flash messages working 
 Home page recomendations/changes
 Account page
-Watchlist delete button
 Account delete button
 Account Edit function
 Webpage scaling
@@ -25,7 +24,7 @@ CI/CD pipeline setup
 -----------------COMPLETE----------------
 
 Get database onto a server 
-
+Watchlist delete button
 
 
 API key

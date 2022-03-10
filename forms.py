@@ -25,7 +25,7 @@ class MovieSubmit(FlaskForm):
     submit = SubmitField('Add to watchlist')
 
 class MovieDelete(FlaskForm):
-    delete = SubmitField('Delete from watchlist')
+    submit = SubmitField('Delete from watchlist')
 
 class LoginForm(FlaskForm):
     email = StringField('Email',
