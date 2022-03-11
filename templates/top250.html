@@ -1,29 +1,14 @@
 {% extends "layout.html" %}
 {% block content %}
 
-    <section id="about">
-        <div class="container px-4">
-            <div class="row gx-4 justify-content-center">
-                <div class="col-lg-8">
-                    
-                    <p class="lead"></p>
-                    <ul>
-                
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-
     <div style="margin-bottom: 50vw;">
         <div class="container defpage"></div>
             <div class="container maincon" style="margin-bottom: 5%;">
             <a class="nav-item nav-link btn btn-default backbtn" style="margin-left: 0.5vh;" href="{{ url_for('home') }}">Back</a>
           
-            {% for post in data %}
-                      <a class="searchtitle" href="{{url_for('movie',movieid = post.id)}}">{{ post.title }}</a>
-                      <small class="text yeartype">{{ post.year }} :01 {{post.imDbRating}} </small>
+            {% for post in data.items %}
+                      <a>{{ post.title }}</a>
+                      <small class="text yeartype">{{ post.year }} : {{post.imDbRating}} </small>
                 </article>
             {% endfor %}
         </div>

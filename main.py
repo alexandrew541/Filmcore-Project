@@ -1,10 +1,10 @@
 from flask import Flask, render_template, redirect, url_for, request, flash
 import urllib.request, json 
 from flask import Flask
-from forms import MovieSubmit, RegistrationForm, LoginForm, MovieDelete
+from forms import AccountDelete, MovieSubmit, RegistrationForm, LoginForm, MovieDelete, WatchlistDelete
 import psycopg2
 import bcrypt
-import requests
+from urllib.request import Request, urlopen
 
 hostname = 'filmcore.cuamqg1s0vh3.eu-west-2.rds.amazonaws.com'
 database = 'filmcore'
@@ -52,18 +52,11 @@ def home():
 @app.route("/top250", methods=['GET'])
 def top250():
 
-    url = 'https://imdb-api.com/en/API/Top250Movies/k_10ri6dyy'
-
-    headers={'User-Agent': 'Mozilla/5.0'}
-
-    data = requests.get(url=url, headers=headers)
-    binary = data.content
+    req = Request('https://imdb-api.com/en/API/Top250Movies/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+    data = urlopen(req).read()
     
 
-    #req = Request('https://imdb-api.com/en/API/Top250Movies/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
-    #data = urlopen(req).read()
-
-    return render_template('top250.html', data = binary, signedin = signedin, usernames = usernames, usersid = usersid )
+    return render_template('top250.html', data = data, signedin = signedin, usernames = usernames, usersid = usersid )
 
 
 #Search Results Page
@@ -210,7 +203,7 @@ def register():
 
 
 #Profile Page
-@app.route("/profile/<int:usersid>", methods=['GET'])
+@app.route("/profile/<int:usersid>", methods=['GET', 'POST'])
 def profile(usersid):
     if signedin == False:
         return redirect(url_for('login'))
@@ -219,9 +212,24 @@ def profile(usersid):
         usernameid = str(usersid)
         cursor.execute("SELECT * FROM users WHERE userid='"+ usernameid + "'")
         account = cursor.fetchone() 
-        print(account)
-        
-    return render_template('profile.html', signedin = signedin, usernames = usernames, usersid = usersid, account = account )
+
+    form = AccountDelete()
+    form2 = WatchlistDelete()
+
+    if form.validate_on_submit():
+        script = "DELETE FROM watchlist WHERE usersid='"+ usernameid + "'"
+        #secscript = "DELETE FROM users WHERE userid='"+ usernameid + "'"
+        cursor.execute(script)
+        #cursor.execute(secscript)
+        print("form 1 ran")
+        return redirect(url_for('logout'))
+    
+    elif form2.validate_on_submit():
+        script2 = "DELETE FROM watchlist WHERE usersid='"+ usernameid + "'"
+        cursor.execute(script2)
+        print("form 2 ran")
+
+    return render_template('profile.html', signedin = signedin, usernames = usernames, usersid = usersid, form = form, form2 = form2, account = account )
 
 
 #Login Page

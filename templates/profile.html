@@ -4,10 +4,24 @@
 <div class="container hmpage">
 </div>
     <header class="bg-secondary bg-gradient text-white">
-        
         <div class="container px-4 text-center searchbars">
             <div class="container">
-                
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    <fieldset class="form-group">
+                        <div class="form-group">
+                            {{ form.submit(class="btn btn-default") }}
+                        </div>
+                      </fieldset>
+                    </form>
+                <form method="POST" action="">
+                    {{ form2.hidden_tag() }}
+                    <fieldset class="form-group">
+                        <div class="form-group">
+                            {{ form2.submit(class="btn btn-default") }}
+                        </div>
+                        </fieldset>
+                    </form>
                 <div class="col-md-8">
                     <ul class="list-group">
                       <li class="list-group-item movieinfo"><strong>Username:</strong> {{account[1]}}</li>
