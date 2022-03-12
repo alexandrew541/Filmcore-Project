@@ -4,25 +4,26 @@ LIST OF AP2 FEATURES AND REQUIREMENTS
 ------------VERY IMPORTANT----------
 Flash messages working 
 Home page recomendations/changes
-Account delete button
 Password change
-Webpage scaling
 Search feature bugs removed
 Search page/ Watchlist layout changed
 Cosign similarity implementation
 Top250 page implementation
 Fix all webpage styling
+paramiterised queriers
 
 -------------LESS IMPORTANT---------
 Website footer
 Logo in navbar
 CI/CD pipeline setup
+Webpage scaling
 
 -----------------COMPLETE----------------
 
 Get database onto a server 
 Watchlist delete button
 Account page
+Account delete button
 
 API key
 k_10ri6dyy

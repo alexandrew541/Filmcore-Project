@@ -43,8 +43,11 @@ app.config['SECRET_KEY'] = '7CA5293D0810257F680B2A6CAC9EB291B5405E4D4F42B9A1E26E
 def home():
     global searchvalue
     searchvalue = ''
-    if conn_error == True:
-        flash(f'Database connection error' , 'warning')
+
+    #req = Request('https://imdb-api.com/en/API/MostPopularMovies/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+    #data = json.loads(urlopen(req).read())
+    #data = (data["items"])
+    
     return render_template('home.html', signedin = signedin, usernames = usernames, usersid = usersid )
 
 
@@ -53,10 +56,21 @@ def home():
 def top250():
 
     req = Request('https://imdb-api.com/en/API/Top250Movies/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
-    data = urlopen(req).read()
-    
+    data = json.loads(urlopen(req).read())
+    data = (data["items"])
 
     return render_template('top250.html', data = data, signedin = signedin, usernames = usernames, usersid = usersid )
+
+
+#Top250 TV shows Page
+@app.route("/top250tv", methods=['GET'])
+def top250tv():
+
+    req = Request('https://imdb-api.com/en/API/Top250TVs/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+    data = json.loads(urlopen(req).read())
+    data = (data["items"])
+
+    return render_template('top250tv.html', data = data, signedin = signedin, usernames = usernames, usersid = usersid )
 
 
 #Search Results Page
