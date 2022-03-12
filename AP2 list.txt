@@ -8,12 +8,13 @@ Password change
 Search feature bugs removed
 Search page/ Watchlist layout changed
 Cosign similarity implementation
-Top250 page implementation
 Fix all webpage styling
-paramiterised queriers
+Paramiterised queries
+Website footer
+
 
 -------------LESS IMPORTANT---------
-Website footer
+
 Logo in navbar
 CI/CD pipeline setup
 Webpage scaling
@@ -24,6 +25,7 @@ Get database onto a server
 Watchlist delete button
 Account page
 Account delete button
+Top250 page implementation
 
 API key
 k_10ri6dyy

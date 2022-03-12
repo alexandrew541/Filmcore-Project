@@ -6,12 +6,15 @@ import psycopg2
 import bcrypt
 from urllib.request import Request, urlopen
 
+
+#Database Conn details
 hostname = 'filmcore.cuamqg1s0vh3.eu-west-2.rds.amazonaws.com'
 database = 'filmcore'
 dbusername = 'postgres'
 dbpwd = 'filmcore'
 dbport_id = '5432'
 conn_error = False
+
 
 #Varible declaration
 signedin = False
@@ -32,7 +35,8 @@ except Exception as error:
 
 cursor = con.cursor()
 
-#flask app and key config declaration
+
+#Flask app and key config declaration
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '7CA5293D0810257F680B2A6CAC9EB291B5405E4D4F42B9A1E26EDE9BAB50BE72'
 
@@ -41,14 +45,57 @@ app.config['SECRET_KEY'] = '7CA5293D0810257F680B2A6CAC9EB291B5405E4D4F42B9A1E26E
 @app.route("/")
 @app.route("/home", methods=['POST' , 'GET'])
 def home():
-    global searchvalue
+    global searchvalue, pop_mov_data, pop_tv_data, theatreq, upcomingreq
+
     searchvalue = ''
 
-    #req = Request('https://imdb-api.com/en/API/MostPopularMovies/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
-    #data = json.loads(urlopen(req).read())
-    #data = (data["items"])
+    hold = False
     
-    return render_template('home.html', signedin = signedin, usernames = usernames, usersid = usersid )
+    cut_data = ""
+    cut_theatr_data = ""
+    cut_tv_data = ""
+    cut_upcoming_data = ""
+
+    if hold == True:
+        req = Request('https://imdb-api.com/en/API/MostPopularMovies/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+        pop_mov_data = json.loads(urlopen(req).read())
+        cut_data = pop_mov_data["items"][0:5]
+
+        tvreq = Request('https://imdb-api.com/en/API/MostPopularTVs/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+        pop_tv_data = json.loads(urlopen(tvreq).read())
+        cut_tv_data = pop_tv_data["items"][0:5]
+
+        theatreq = Request('https://imdb-api.com/en/API/InTheaters/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+        theatr_data = json.loads(urlopen(theatreq).read())
+        cut_theatr_data = theatr_data["items"][0:5]
+
+        upcomingreq = Request('https://imdb-api.com/en/API/ComingSoon/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+        upcoming_data = json.loads(urlopen(upcomingreq).read())
+        cut_upcoming_data = upcoming_data["items"][0:5]
+    
+    
+    return render_template('home.html', signedin = signedin, data1 = cut_data, data2 = cut_tv_data, data3 = cut_theatr_data, 
+    data4 = cut_upcoming_data, usernames = usernames, usersid = usersid )
+
+
+#Most Popular Movies Page
+@app.route("/popular-movies", methods=['GET'])
+def popularmovies():
+
+    global pop_mov_data
+    data = pop_mov_data["items"]
+
+    return render_template('popular_movies.html', data = data, signedin = signedin, usernames = usernames, usersid = usersid )
+
+
+#Most Popular TV Page
+@app.route("/popular-tv", methods=['GET'])
+def populartv():
+
+    global pop_tv_data
+    data = pop_tv_data["items"]
+
+    return render_template('popular_tv.html', data = data, signedin = signedin, usernames = usernames, usersid = usersid )
 
 
 #Top250 Page
@@ -57,7 +104,7 @@ def top250():
 
     req = Request('https://imdb-api.com/en/API/Top250Movies/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
     data = json.loads(urlopen(req).read())
-    data = (data["items"])
+    data = data["items"]
 
     return render_template('top250.html', data = data, signedin = signedin, usernames = usernames, usersid = usersid )
 
@@ -68,7 +115,7 @@ def top250tv():
 
     req = Request('https://imdb-api.com/en/API/Top250TVs/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
     data = json.loads(urlopen(req).read())
-    data = (data["items"])
+    data = data["items"]
 
     return render_template('top250tv.html', data = data, signedin = signedin, usernames = usernames, usersid = usersid )
 
