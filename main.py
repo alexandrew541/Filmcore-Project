@@ -50,13 +50,12 @@ def home():
     searchvalue = ''
 
     hold = False
-    
     cut_data = ""
     cut_theatr_data = ""
     cut_tv_data = ""
     cut_upcoming_data = ""
-
     if hold == True:
+
         req = Request('https://imdb-api.com/en/API/MostPopularMovies/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
         pop_mov_data = json.loads(urlopen(req).read())
         cut_data = pop_mov_data["items"][0:5]
