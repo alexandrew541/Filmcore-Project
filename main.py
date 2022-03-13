@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request, flash
 import urllib.request, json 
 from flask import Flask
-from forms import AccountDelete, MovieSubmit, RegistrationForm, LoginForm, MovieDelete, WatchlistDelete
+from forms import MovieSubmit, RegistrationForm, LoginForm, MovieDelete, ProfileForm
 import psycopg2
 import bcrypt
 from urllib.request import Request, urlopen
@@ -273,23 +273,22 @@ def profile(usersid):
         cursor.execute("SELECT * FROM users WHERE userid='"+ usernameid + "'")
         account = cursor.fetchone() 
 
-    form = AccountDelete()
-    form2 = WatchlistDelete()
+    form = ProfileForm()
 
     if form.validate_on_submit():
-        script = "DELETE FROM watchlist WHERE usersid='"+ usernameid + "'"
-        #secscript = "DELETE FROM users WHERE userid='"+ usernameid + "'"
-        cursor.execute(script)
-        #cursor.execute(secscript)
-        print("form 1 ran")
-        return redirect(url_for('logout'))
-    
-    elif form2.validate_on_submit():
-        script2 = "DELETE FROM watchlist WHERE usersid='"+ usernameid + "'"
-        cursor.execute(script2)
-        print("form 2 ran")
 
-    return render_template('profile.html', signedin = signedin, usernames = usernames, usersid = usersid, form = form, form2 = form2, account = account )
+        if form.submit.data:
+            script = "DELETE FROM watchlist WHERE usersid='"+ usernameid + "'"
+            secscript = "DELETE FROM users WHERE userid='"+ usernameid + "'"
+            cursor.execute(script)
+            cursor.execute(secscript)
+            return redirect(url_for('logout'))
+
+        elif form.submit2.data:
+            script2 = "DELETE FROM watchlist WHERE usersid='"+ usernameid + "'"
+            cursor.execute(script2)
+
+    return render_template('profile.html', signedin = signedin, usernames = usernames, usersid = usersid, form = form, account = account )
 
 
 #Login Page
