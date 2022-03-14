@@ -30,6 +30,54 @@
     <section id="about">
         <div class="container px-4">
             <div class="row gx-4 justify-content-center">
+                <div class="col-md-8">
+                    {% for post in data1 %}
+                    <article class="media content-section border-secondary searchpages">
+                        <div class="media-body">
+                            <a class="searchtitle" href="{{url_for('movie',movieid = post.id)}}">{{ post.title }}</a>
+                            <div class="media-body">
+                            <img src= "{{ post.image }}" style="width: 5vw; height: 15vh;" />
+                            <div class="media-body">
+                            <small class="text yeartype">{{ post.year }} : {{post.imDbRating}} </small>
+                      </article>
+                      {% endfor %}                    
+                </div>
+                <div class="col-md-8">
+                    {% for post in data2 %}
+                    <article class="media content-section border-secondary searchpages">
+                        <div class="media-body">
+                            <a class="searchtitle" href="{{url_for('movie',movieid = post.id)}}">{{ post.title }}</a>
+                            <div class="media-body">
+                            <img src= "{{ post.image }}" style="width: 5vw; height: 15vh;" />
+                            <div class="media-body">
+                            <small class="text yeartype">{{ post.year }} : {{post.imDbRating}} </small>
+                      </article>
+                      {% endfor %}                    
+                </div>
+                <div class="col-md-8">
+                    {% for post in data3 %}
+                    <article class="media content-section border-secondary searchpages">
+                        <div class="media-body">
+                            <a class="searchtitle" href="{{url_for('movie',movieid = post.id)}}">{{ post.title }}</a>
+                            <div class="media-body">
+                            <img src= "{{ post.image }}" style="width: 5vw; height: 15vh;" />
+                            <div class="media-body">
+                            <small class="text yeartype">{{ post.year }} : {{post.imDbRating}} </small>
+                      </article>
+                      {% endfor %}                    
+                </div>
+                <div class="col-md-8">
+                    {% for post in data4 %}
+                    <article class="media content-section border-secondary searchpages">
+                        <div class="media-body">
+                            <a class="searchtitle" href="{{url_for('movie',movieid = post.id)}}">{{ post.title }}</a>
+                            <div class="media-body">
+                            <img src= "{{ post.image }}" style="width: 5vw; height: 15vh;" />
+                            <div class="media-body">
+                            <small class="text yeartype">{{ post.year }} : {{post.imDbRating}} </small>
+                      </article>
+                      {% endfor %}                    
+                </div>
                 <div class="col-lg-8">
                     
                     <p class="lead"></p>

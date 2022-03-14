@@ -1,6 +1,8 @@
+from flask import Flask
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from wtforms.validators import DataRequired, Length, Email, EqualTo
+#, ValidationError
 
 
 class RegistrationForm(FlaskForm):
@@ -17,20 +19,23 @@ class RegistrationForm(FlaskForm):
                            validators=[DataRequired(), Length(min=2, max=30)])                          
     submit = SubmitField('Sign Up')
 
-    def validate_(self, field):
-        if True:
-            raise ValidationError('That username is different, Please choose another.')
+    #def validate_(self, field):
+    #    if True:
+    #        raise ValidationError('That username is different, Please choose another.')
+
 
 class MovieSubmit(FlaskForm):
     submit = SubmitField('Add to watchlist')
 
+
 class MovieDelete(FlaskForm):
     submit = SubmitField('Delete from watchlist')
 
-class ProfileForm(FlaskForm):
 
+class ProfileForm(FlaskForm):
     submit = SubmitField('Delete Account')
     submit2 = SubmitField('Clear Watchlist')
+
 
 class LoginForm(FlaskForm):
     email = StringField('Email',
@@ -39,4 +44,22 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Log In')
 
 
+class EmailConfirm(FlaskForm):
+    email = StringField('Email',
+                        validators=[DataRequired(), Email()])
+    submit = SubmitField('Submit')
 
+
+class PasswordReset(FlaskForm):
+    password = PasswordField('Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm Password',
+                                     validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Submit')
+
+
+class PasswordChange(FlaskForm):
+    old_password = PasswordField('Old Password', validators=[DataRequired()])
+    new_password = PasswordField('New Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm Password',
+                                     validators=[DataRequired(), EqualTo('new_password')])
+    submit = SubmitField('Submit')

@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request, flash
 import urllib.request, json 
 from flask import Flask
-from forms import MovieSubmit, RegistrationForm, LoginForm, MovieDelete, ProfileForm
+from forms import MovieSubmit, RegistrationForm, LoginForm, MovieDelete, ProfileForm, EmailConfirm, PasswordChange, PasswordReset
 import psycopg2
 import bcrypt
 from urllib.request import Request, urlopen
@@ -95,6 +95,26 @@ def populartv():
     data = pop_tv_data["items"]
 
     return render_template('popular_tv.html', data = data, signedin = signedin, usernames = usernames, usersid = usersid )
+
+
+#In theatres Page
+@app.route("/in-theatres", methods=['GET'])
+def intheatres():
+
+    global theatreq
+    data = theatreq["items"]
+
+    return render_template('in_theatres.html', data = data, signedin = signedin, usernames = usernames, usersid = usersid )
+
+
+#Coming soon page
+@app.route("/coming-soon", methods=['GET'])
+def comingsoon():
+
+    global upcomingreq
+    data = upcomingreq["items"]
+
+    return render_template('coming_soon.html', data = data, signedin = signedin, usernames = usernames, usersid = usersid )
 
 
 #Top250 Page
@@ -289,6 +309,36 @@ def profile(usersid):
             cursor.execute(script2)
 
     return render_template('profile.html', signedin = signedin, usernames = usernames, usersid = usersid, form = form, account = account )
+
+
+#Password Change Page
+@app.route("/change-password", methods=['GET', 'POST'])
+def passwordchange():
+    if signedin == False:
+        return redirect(url_for('login'))
+    
+    form = PasswordChange()
+
+    if form.validate_on_submit():
+        script = "SELECT * FROM users WHERE userid ='" + usersid + "'"
+        cursor.execute(script)
+        account = cursor.fetchone()
+        hashedpw = bcrypt.checkpw(form.old_password.data.encode('utf-8'), account[2].encode('utf-8'))
+
+        if account and hashedpw:
+            new_hashedpw = bcrypt.hashpw(form.new_password.data.encode('utf-8'),bcrypt.gensalt())
+            new_unhashedpw = new_hashedpw.decode('utf-8')
+
+    return render_template('password_change.html', form = form , signedin = signedin, usernames = usernames, usersid = usersid )
+
+
+#Email Confirm Page
+@app.route("/confirm-email", methods=['GET', 'POST'])
+def confirmemail():
+    if signedin == True:
+        return redirect(url_for('profile/<int:usersid>'))
+
+    return render_template('top250.html', signedin = signedin, usernames = usernames, usersid = usersid )
 
 
 #Login Page

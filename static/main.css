@@ -1,9 +1,14 @@
 @charset "UTF-8";
 
+html{
+  font-family: lato,sans-serif !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+}
+
 body {
   background: #eeeeee;
   color: #333333;
-  font-family: Helvetica !important;
   width: 100%;
   margin: auto;
   
@@ -352,4 +357,17 @@ ion-icon {
   left:auto;
   right:0;
   margin-right:-10px;
+}
+
+.show > .dropdown-menu {
+  max-height: 900px;
+  visibility: visible;
+}
+  
+.dropdown-menu {
+  display: block;
+  max-height: 0;
+  visibility: hidden;
+  transition: all 0.35s ease-in-out;
+  overflow: hidden;
 }
