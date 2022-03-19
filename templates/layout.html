@@ -56,6 +56,15 @@
               <div class="btn-group">
                 <a class="nav-item nav-link" style="color: #f8f8f8; font-size: 15px;">Hi {{usernames}}!</a>
 
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('watchlist') }}">Watchlist</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('profile', usersid = usersid) }}">Profile</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('logout') }}">Log Out</a>
+                </li>
                 <button type="button" class="icon-button" data-bs-toggle="dropdown">
                   <span class="material-icons">account_circle</span>
                 </button>

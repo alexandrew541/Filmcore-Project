@@ -10,9 +10,7 @@
     <header class="bg-secondary bg-gradient text-white">
         <div class="container px-4 text-center searchbars">
             <div class="container">
-                <button type="button" class="btn btn-warning" href="{{ url_for('password_change') }}">
-                  Change Password
-                </button>
+                <a class="btn btn-warning"  href="{{ url_for('password_change') }}">Change Password</a>
                 
                 {{ form.submit2(class="btn btn-default") }}
 

@@ -3,10 +3,11 @@ import urllib.request, json
 from flask import Flask
 from forms import MovieSubmit, RegistrationForm, LoginForm, MovieDelete, ProfileForm
 from forms import EmailConfirm, PasswordChange, PasswordReset
+from flask_mail import Message
 import psycopg2
 import bcrypt
 from urllib.request import Request, urlopen
-
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
 #Database Conn details
 hostname = 'filmcore.cuamqg1s0vh3.eu-west-2.rds.amazonaws.com'
@@ -314,14 +315,15 @@ def profile(usersid):
 
 #Password Change Page
 @app.route("/change-password", methods=['GET', 'POST'])
-def passwordchange():
+def password_change():
     if signedin == False:
         return redirect(url_for('login'))
     
     form = PasswordChange()
 
     if form.validate_on_submit():
-        script = "SELECT * FROM users WHERE userid ='" + usersid + "'"
+        usernameid = str(usersid)
+        script = "SELECT * FROM users WHERE userid ='" + usernameid + "'"
         cursor.execute(script)
         account = cursor.fetchone()
         hashedpw = bcrypt.checkpw(form.old_password.data.encode('utf-8'), account[2].encode('utf-8'))
@@ -329,18 +331,23 @@ def passwordchange():
         if account and hashedpw:
             new_hashedpw = bcrypt.hashpw(form.new_password.data.encode('utf-8'),bcrypt.gensalt())
             new_unhashedpw = new_hashedpw.decode('utf-8')
-            update_script = "UPDATE users SET password ='" + new_unhashedpw + "'WHERE userid ='" + usersid + "'"
+            update_script = "UPDATE users SET pwd ='" + new_unhashedpw + "'WHERE userid ='" + usernameid + "'"
             cursor.execute(update_script)
-            return redirect(url_for('profile/<int:usersid>'))
+            return redirect(url_for('profile', usersid = usersid))
 
     return render_template('password_change.html', form = form , signedin = signedin, usernames = usernames, usersid = usersid )
 
 
 #Email Confirm Page
 @app.route("/confirm-email", methods=['GET', 'POST'])
-def confirmemail():
+def confirm_email():
     if signedin == True:
-        return redirect(url_for('profile/<int:usersid>'))
+        return redirect(url_for('profile', usersid = usersid))
+    
+    form = EmailConfirm()
+
+    if form.validate_on_submit():
+        pass
 
     return render_template('top250.html', signedin = signedin, usernames = usernames, usersid = usersid )
 

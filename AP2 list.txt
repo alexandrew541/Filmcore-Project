@@ -3,7 +3,6 @@ LIST OF AP2 FEATURES AND REQUIREMENTS
 
 ------------MUST BE DONE----------
 Paramiterised queries
-Password change
 Password reset
 Search feature bugs removed
 
@@ -12,7 +11,7 @@ Search page/ Watchlist layout changed
 Fix all webpages styling
 Flash messages working 
 Website footer
-
+Comment All Code 
 
 -------------TIME DEPENDANT---------
 
@@ -27,6 +26,7 @@ Watchlist delete button
 Account page
 Account delete button
 Top250 page implementation
+Password change
 
 API key
 k_10ri6dyy
