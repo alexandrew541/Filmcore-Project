@@ -1,7 +1,8 @@
 from flask import Flask, render_template, redirect, url_for, request, flash
 import urllib.request, json 
 from flask import Flask
-from forms import MovieSubmit, RegistrationForm, LoginForm, MovieDelete, ProfileForm, EmailConfirm, PasswordChange, PasswordReset
+from forms import MovieSubmit, RegistrationForm, LoginForm, MovieDelete, ProfileForm
+from forms import EmailConfirm, PasswordChange, PasswordReset
 import psycopg2
 import bcrypt
 from urllib.request import Request, urlopen
@@ -328,6 +329,9 @@ def passwordchange():
         if account and hashedpw:
             new_hashedpw = bcrypt.hashpw(form.new_password.data.encode('utf-8'),bcrypt.gensalt())
             new_unhashedpw = new_hashedpw.decode('utf-8')
+            update_script = "UPDATE users SET password ='" + new_unhashedpw + "'WHERE userid ='" + usersid + "'"
+            cursor.execute(update_script)
+            return redirect(url_for('profile/<int:usersid>'))
 
     return render_template('password_change.html', form = form , signedin = signedin, usernames = usernames, usersid = usersid )
 
