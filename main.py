@@ -1,13 +1,20 @@
+from email import message
 from flask import Flask, render_template, redirect, url_for, request, flash
 import urllib.request, json 
 from flask import Flask
 from forms import MovieSubmit, RegistrationForm, LoginForm, MovieDelete, ProfileForm
 from forms import EmailConfirm, PasswordChange, PasswordReset
-from flask_mail import Message
+from flask_mail import Message, Mail
 import psycopg2
 import bcrypt
 from urllib.request import Request, urlopen
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+import os
+import smtplib
+
+#Flask app and key config declaration
+app = Flask(__name__)
+app.config['SECRET_KEY'] = '7CA5293D0810257F680B2A6CAC9EB291B5405E4D4F42B9A1E26EDE9BAB50BE72'
 
 #Database Conn details
 hostname = 'filmcore.cuamqg1s0vh3.eu-west-2.rds.amazonaws.com'
@@ -16,7 +23,6 @@ dbusername = 'postgres'
 dbpwd = 'filmcore'
 dbport_id = '5432'
 conn_error = False
-
 
 #Varible declaration
 signedin = False
@@ -36,12 +42,6 @@ except Exception as error:
     print('Connection to database is faulty')
 
 cursor = con.cursor()
-
-
-#Flask app and key config declaration
-app = Flask(__name__)
-app.config['SECRET_KEY'] = '7CA5293D0810257F680B2A6CAC9EB291B5405E4D4F42B9A1E26EDE9BAB50BE72'
-
 
 #Home Page
 @app.route("/")
@@ -338,18 +338,104 @@ def password_change():
     return render_template('password_change.html', form = form , signedin = signedin, usernames = usernames, usersid = usersid )
 
 
+#Verify the reset token function
+def verify_reset_token(token):
+    s = Serializer(app.config['SECRET_KEY'])
+    try:
+        user_id = s.loads(token)['user_id']
+    except:
+        return None
+
+    struser = str(user_id)
+    script = "SELECT * FROM users WHERE userid ='" + struser + "'"
+    cursor.execute(script)
+    account = cursor.fetchone()
+    return account
+
+
 #Email Confirm Page
 @app.route("/confirm-email", methods=['GET', 'POST'])
 def confirm_email():
+    expires_sec=1800
     if signedin == True:
-        return redirect(url_for('profile', usersid = usersid))
+        return redirect(url_for('home'))
     
     form = EmailConfirm()
 
     if form.validate_on_submit():
-        pass
+        user_email = form.email.data
+        script = "SELECT * FROM users WHERE email ='" + user_email + "'"
+        cursor.execute(script)
+        account = cursor.fetchone()
 
-    return render_template('top250.html', signedin = signedin, usernames = usernames, usersid = usersid )
+        if cursor.rowcount == 0:
+            flash(f'This email is not associated with any account', 'warning')
+            redirect(url_for('confirm_email'))
+        
+        else:
+            account_id = account[0]
+
+            s = Serializer(app.config['SECRET_KEY'], expires_sec)
+            token = s.dumps({'user_id': account_id}).decode('utf-8')
+
+            message = f"""\
+            Subject: Filmcore Account Password Reset
+
+            Click on the link below to change your password. This link will expire in 30mins
+            \
+            {url_for('reset_password', token=token, _external=True)}
+            \
+            If you did not request this link, please ignore this email.
+            \
+            Thanks 
+            \
+            Filmcore Support
+            """
+            
+
+            server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+            server.login("service.filmcore@gmail.com", "Beretta09")
+
+            server.sendmail(
+                "service.firmcore@gmail.com", 
+                [user_email], 
+                message 
+            )
+            server.quit()
+            
+            flash('An email has been sent with instructions to reset your password.', 'info')
+            return redirect(url_for('login'))
+
+    return render_template('confirm_email.html', signedin = signedin, usernames = usernames, usersid = usersid, form = form )
+
+
+#Reset Password Page
+@app.route("/reset-password/<token>", methods=['GET', 'POST'])
+def reset_password(token):
+    global signedin, usernames, usersid
+    if signedin == True:
+        return redirect(url_for('home'))
+
+    user = verify_reset_token(token)
+    if user is None:
+        flash('That is an invalid or expired token', 'warning')
+        return redirect(url_for('home'))
+    form = PasswordReset()
+    if form.validate_on_submit():
+        hashedpw = bcrypt.hashpw(form.password.data.encode('utf-8'),bcrypt.gensalt())
+        unhashedpw = hashedpw.decode('utf-8')
+
+        userids = str(user[0])
+        print(user)
+        update_script = "UPDATE users SET pwd ='" + unhashedpw + "'WHERE userid ='" + userids + "'"
+        cursor.execute(update_script)
+    
+        signedin = True
+        usernames = user[1]
+        usersid = user[0]
+
+        return redirect(url_for('home', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
+    return render_template('password_reset.html', form=form)
 
 
 #Login Page
@@ -382,11 +468,13 @@ def login():
 #Logout Function
 @app.route("/logout", methods=['GET'])
 def logout():
-    global signedin
+    global signedin, usernames, usersid
     if signedin == False:
         return redirect(url_for('home'))
     else:
         signedin = False
+        usernames = ""
+        usersid = ''
     return redirect(url_for('home'))
 
 

@@ -40,6 +40,8 @@ class LoginForm(FlaskForm):
 class EmailConfirm(FlaskForm):
     email = StringField('Email',
                         validators=[DataRequired(), Email()])
+    confirm_email = StringField('Confirm Email',
+                        validators=[DataRequired(), Email(), EqualTo('email')])
     submit = SubmitField('Submit')
 
 
