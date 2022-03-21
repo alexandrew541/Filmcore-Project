@@ -378,17 +378,16 @@ def confirm_email():
             s = Serializer(app.config['SECRET_KEY'], expires_sec)
             token = s.dumps({'user_id': account_id}).decode('utf-8')
 
-            message = f"""\
+            message = f"""
             Subject: Filmcore Account Password Reset
 
             Click on the link below to change your password. This link will expire in 30mins
-            \
+            
             {url_for('reset_password', token=token, _external=True)}
-            \
+            
             If you did not request this link, please ignore this email.
-            \
+            
             Thanks 
-            \
             Filmcore Support
             """
             
