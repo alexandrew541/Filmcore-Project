@@ -1,28 +1,29 @@
-from email import message
 from flask import Flask, render_template, redirect, url_for, request, flash
 import urllib.request, json 
 from flask import Flask
 from forms import MovieSubmit, RegistrationForm, LoginForm, MovieDelete, ProfileForm
 from forms import EmailConfirm, PasswordChange, PasswordReset
-from flask_mail import Message, Mail
 import psycopg2
 import bcrypt
 from urllib.request import Request, urlopen
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-import os
 import smtplib
+import databaseconn
+
 
 #Flask app and key config declaration
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '7CA5293D0810257F680B2A6CAC9EB291B5405E4D4F42B9A1E26EDE9BAB50BE72'
 
+
 #Database Conn details
-hostname = 'filmcore.cuamqg1s0vh3.eu-west-2.rds.amazonaws.com'
-database = 'filmcore'
-dbusername = 'postgres'
-dbpwd = 'filmcore'
-dbport_id = '5432'
+hostname = databaseconn.hostname
+database = databaseconn.database
+dbusername = databaseconn.dbusername
+dbpwd = databaseconn.dbpwd
+dbport_id = databaseconn.dbport_id
 conn_error = False
+
 
 #Varible declaration
 signedin = False
@@ -182,7 +183,8 @@ def movie(movieid):
     stringuser = str(usersid)
 
     if usersid != '':
-        cursor.execute("SELECT * FROM watchlist WHERE movieid  ='" + movieid + "'AND usersid ='" + stringuser + "'")
+        cursor.execute("SELECT * FROM watchlist WHERE movieid = %(hold_mov)s AND usersid = %(hold_id)s", {"hold_mov": movieid}, {"hold_id": stringuser}  )
+
         if cursor.rowcount > 0:
             add = True
 
@@ -204,7 +206,13 @@ def movie(movieid):
     form = MovieSubmit()
 
     if form.validate_on_submit():
-        cursor.execute("INSERT INTO watchlist(movieid, moviename, movieimage, movieType, movieyear, usersID) VALUES('" + movieID +  "','" + movieName + "', '" + movieImage + "', '" + movieType + "', '" + movieYear + "', '" + stringuser + "')")
+        
+        insert = "INSERT INTO watchlist(movieid, moviename, movieimage, movieType, movieyear, usersID) VALUES(%(hold_id)s,%(hold_name)s,%(hold_image)s,%(hold_Type)s,%(hold_year)s,%(hold_ids)s)"
+        
+        data = {"hold_id": movieID}, {"hold_name": movieName}, {"hold_image": movieImage}, {"hold_Type": movieType}, {"hold_year": movieYear}, {"hold_ids": stringuser}
+        
+        cursor.execute(insert, data)
+
         flash(f'{movieName} has been added to your watchlist!', 'success') 
 
     return render_template('movie.html', movies = data, form = form, signedin = signedin, usernames = usernames, usersid = usersid, add = add)
@@ -216,7 +224,9 @@ def watchlist():
     if signedin == False:
         return redirect(url_for('login'))
     fkuser_id = str(usersid)
-    cursor.execute("SELECT * FROM watchlist WHERE usersid ='" + fkuser_id + "'")
+    
+    cursor.execute("SELECT * FROM watchlist WHERE usersid = %(hold_id)s", {"hold_id": fkuser_id})
+
     wlist = cursor.fetchall()
     return render_template('watchlist.html', signedin = signedin, usernames = usernames, usersid = usersid, wlist = wlist )
 
@@ -233,7 +243,8 @@ def watchlist_movie(movieid):
     strmovie = str(movieid)
 
     if form.validate_on_submit():
-        cursor.execute("DELETE FROM watchlist WHERE movieid ='" + strmovie + "'AND usersid ='" + stringuser + "'")
+        cursor.execute("DELETE FROM watchlist WHERE movieid = %(hold_mov)s AND usersid = %(hold_id)s", {"hold_mov": strmovie}, {"hold_id": stringuser}  )
+
         return redirect(url_for('watchlist'))
 
 
@@ -257,21 +268,27 @@ def register():
         lastname = form.lastname.data
         user = username, pwd, email, firstname, lastname
 
-        cursor.execute("SELECT * FROM users WHERE username ='" + username + "'")
+        cursor.execute("SELECT * FROM users WHERE username = %(hold_username)s", {"hold_id": username})
         if cursor.rowcount > 0:
             flash(f'This username is already taken', 'warning')
             return redirect(url_for('register', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
 
         else:
-            cursor.execute("SELECT * FROM users WHERE email ='" + email + "'")
+            cursor.execute("SELECT * FROM users WHERE email = %(hold_email)s", {"hold_id": email})
+
             if cursor.rowcount > 0:
                 flash(f'This email is already associated to another account!', 'warning')
                 return redirect(url_for('register', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
         
             else:
-                cursor.execute("INSERT INTO users(username,pwd,email,firstname,lastname)VALUES('" + username +  "','" + pwd + "', '" + email + "', '" + firstname + "', '" + lastname + "')")
-                
-                cursor.execute("SELECT * FROM users WHERE username ='" + username + "'AND email ='" + email + "'")
+                insert = "INSERT INTO users(username,pwd,email,firstname,lastname) VALUES(%(hold_username)s,%(hold_pwd)s,%(hold_email)s,%(hold_firstname)s,%(hold_lastname)s)"
+        
+                data = ({"hold_username": username}, {"hold_pwd": pwd}, {"hold_email": email}, {"hold_firstname": firstname}, {"hold_lastname": lastname})
+        
+                cursor.execute(insert, data)
+
+                cursor.execute("SELECT * FROM users WHERE username = %(hold_username)s AND email = %(hold_email)s", {"hold_username":username }, {"hold_email": email}  )
+
                 account = cursor.fetchone()
 
                 signedin = True
@@ -292,7 +309,7 @@ def profile(usersid):
     
     else:
         usernameid = str(usersid)
-        cursor.execute("SELECT * FROM users WHERE userid='"+ usernameid + "'")
+        cursor.execute("SELECT * FROM users WHERE userid = %(hold_id)s", {"hold_id": usernameid})
         account = cursor.fetchone() 
 
     form = ProfileForm()
@@ -300,14 +317,15 @@ def profile(usersid):
     if form.validate_on_submit():
 
         if form.submit.data:
-            script = "DELETE FROM watchlist WHERE usersid='"+ usernameid + "'"
-            secscript = "DELETE FROM users WHERE userid='"+ usernameid + "'"
+            
+            script = ("DELETE FROM watchlist WHERE usersid = %(hold_id)s", {"hold_id": usernameid})
+            secscript = ("DELETE FROM users WHERE usersid = %(hold_id)s", {"hold_id": usernameid})
             cursor.execute(script)
             cursor.execute(secscript)
             return redirect(url_for('logout'))
 
         elif form.submit2.data:
-            script2 = "DELETE FROM watchlist WHERE usersid='"+ usernameid + "'"
+            script2 = ("DELETE FROM watchlist WHERE usersid = %(hold_id)s", {"hold_id": usernameid})
             cursor.execute(script2)
 
     return render_template('profile.html', signedin = signedin, usernames = usernames, usersid = usersid, form = form, account = account )
@@ -323,7 +341,7 @@ def password_change():
 
     if form.validate_on_submit():
         usernameid = str(usersid)
-        script = "SELECT * FROM users WHERE userid ='" + usernameid + "'"
+        script = ("SELECT * FROM users WHERE userid = %(hold_id)s", {"hold_id": usernameid})
         cursor.execute(script)
         account = cursor.fetchone()
         hashedpw = bcrypt.checkpw(form.old_password.data.encode('utf-8'), account[2].encode('utf-8'))
@@ -331,8 +349,11 @@ def password_change():
         if account and hashedpw:
             new_hashedpw = bcrypt.hashpw(form.new_password.data.encode('utf-8'),bcrypt.gensalt())
             new_unhashedpw = new_hashedpw.decode('utf-8')
-            update_script = "UPDATE users SET pwd ='" + new_unhashedpw + "'WHERE userid ='" + usernameid + "'"
-            cursor.execute(update_script)
+
+            update_script = "UPDATE users SET pwd = %(hold_pwd)s WHERE userid = %(hold_id)s"
+            data = ({"hold_pwd": new_unhashedpw},{"hold_id": usernameid})
+            cursor.execute(update_script, data)
+
             return redirect(url_for('profile', usersid = usersid))
 
     return render_template('password_change.html', form = form , signedin = signedin, usernames = usernames, usersid = usersid )
@@ -347,7 +368,8 @@ def verify_reset_token(token):
         return None
 
     struser = str(user_id)
-    script = "SELECT * FROM users WHERE userid ='" + struser + "'"
+    script = ("SELECT * FROM users WHERE userid = %(hold_id)s", {"hold_id": struser})
+
     cursor.execute(script)
     account = cursor.fetchone()
     return account
@@ -364,7 +386,7 @@ def confirm_email():
 
     if form.validate_on_submit():
         user_email = form.email.data
-        script = "SELECT * FROM users WHERE email ='" + user_email + "'"
+        script = ("SELECT * FROM users WHERE email = %(hold_email)s", {"hold_id": user_email})
         cursor.execute(script)
         account = cursor.fetchone()
 
@@ -391,9 +413,8 @@ def confirm_email():
             Filmcore Support
             """
             
-
             server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-            server.login("service.filmcore@gmail.com", "Beretta09")
+            server.login(databaseconn.emailcon, databaseconn.passwordcon)
 
             server.sendmail(
                 "service.firmcore@gmail.com", 
@@ -425,10 +446,12 @@ def reset_password(token):
         unhashedpw = hashedpw.decode('utf-8')
 
         userids = str(user[0])
-        print(user)
-        update_script = "UPDATE users SET pwd ='" + unhashedpw + "'WHERE userid ='" + userids + "'"
-        cursor.execute(update_script)
-    
+        
+        update_script = "UPDATE users SET pwd = %(hold_pwd)s WHERE userid = %(hold_id)s"
+        data = ({"hold_pwd": unhashedpw},{"hold_id": userids})
+        cursor.execute(update_script, data)
+
+
         signedin = True
         usernames = user[1]
         usersid = user[0]
@@ -446,7 +469,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         scriptvalues = form.email.data
-        script = "SELECT * FROM users WHERE email ='" + scriptvalues + "'"
+        script = ("SELECT * FROM users WHERE email = %(hold_email)s", {"hold_id": scriptvalues})
         cursor.execute(script)
         account = cursor.fetchone()
         hashedpw = bcrypt.checkpw(form.password.data.encode('utf-8'), account[2].encode('utf-8'))
