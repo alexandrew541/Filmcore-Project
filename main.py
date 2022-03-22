@@ -151,12 +151,18 @@ def search():
     if searchvalue != '':
         pass
 
+    elif searchvalue == ' ':
+        return redirect(url_for('home'))
+
     else:
         if searchvalue == '':
             searchvalue = request.form.get("searches")
         if ' ' in searchvalue:
             searchvalue = str(searchvalue).replace(' ', '_')
 
+    if searchvalue == '':
+        return redirect(url_for('home'))
+        
     with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&s=' + searchvalue) as url:
         data = json.loads(url.read().decode())
 
@@ -183,7 +189,7 @@ def movie(movieid):
     stringuser = str(usersid)
 
     if usersid != '':
-        cursor.execute("SELECT * FROM watchlist WHERE movieid = %(hold_mov)s AND usersid = %(hold_id)s", {"hold_mov": movieid}, {"hold_id": stringuser}  )
+        cursor.execute("SELECT * FROM watchlist WHERE movieid = %(hold_mov)s AND usersid = %(hold_id)s", {"hold_mov": movieid , "hold_id": stringuser}  )
 
         if cursor.rowcount > 0:
             add = True
@@ -209,7 +215,7 @@ def movie(movieid):
         
         insert = "INSERT INTO watchlist(movieid, moviename, movieimage, movieType, movieyear, usersID) VALUES(%(hold_id)s,%(hold_name)s,%(hold_image)s,%(hold_Type)s,%(hold_year)s,%(hold_ids)s)"
         
-        data = {"hold_id": movieID}, {"hold_name": movieName}, {"hold_image": movieImage}, {"hold_Type": movieType}, {"hold_year": movieYear}, {"hold_ids": stringuser}
+        data = {"hold_id": movieID, "hold_name": movieName, "hold_image": movieImage, "hold_Type": movieType, "hold_year": movieYear, "hold_ids": stringuser}
         
         cursor.execute(insert, data)
 
@@ -243,7 +249,7 @@ def watchlist_movie(movieid):
     strmovie = str(movieid)
 
     if form.validate_on_submit():
-        cursor.execute("DELETE FROM watchlist WHERE movieid = %(hold_mov)s AND usersid = %(hold_id)s", {"hold_mov": strmovie}, {"hold_id": stringuser}  )
+        cursor.execute("DELETE FROM watchlist WHERE movieid = %(hold_mov)s AND usersid = %(hold_id)s", {"hold_mov": strmovie, "hold_id": stringuser}  )
 
         return redirect(url_for('watchlist'))
 
@@ -283,11 +289,11 @@ def register():
             else:
                 insert = "INSERT INTO users(username,pwd,email,firstname,lastname) VALUES(%(hold_username)s,%(hold_pwd)s,%(hold_email)s,%(hold_firstname)s,%(hold_lastname)s)"
         
-                data = ({"hold_username": username}, {"hold_pwd": pwd}, {"hold_email": email}, {"hold_firstname": firstname}, {"hold_lastname": lastname})
+                data = ({"hold_username": username, "hold_pwd": pwd, "hold_email": email, "hold_firstname": firstname, "hold_lastname": lastname})
         
                 cursor.execute(insert, data)
 
-                cursor.execute("SELECT * FROM users WHERE username = %(hold_username)s AND email = %(hold_email)s", {"hold_username":username }, {"hold_email": email}  )
+                cursor.execute("SELECT * FROM users WHERE username = %(hold_username)s AND email = %(hold_email)s", {"hold_username":username , "hold_email": email}  )
 
                 account = cursor.fetchone()
 
@@ -316,17 +322,14 @@ def profile(usersid):
 
     if form.validate_on_submit():
 
-        if form.submit.data:
-            
-            script = ("DELETE FROM watchlist WHERE usersid = %(hold_id)s", {"hold_id": usernameid})
-            secscript = ("DELETE FROM users WHERE usersid = %(hold_id)s", {"hold_id": usernameid})
-            cursor.execute(script)
-            cursor.execute(secscript)
+        if form.submit.data: 
+            cursor.execute("DELETE FROM watchlist WHERE usersid = %(hold_id)s", {"hold_id": usernameid})
+            cursor.execute("DELETE FROM users WHERE usersid = %(hold_id)s", {"hold_id": usernameid})
+
             return redirect(url_for('logout'))
 
         elif form.submit2.data:
-            script2 = ("DELETE FROM watchlist WHERE usersid = %(hold_id)s", {"hold_id": usernameid})
-            cursor.execute(script2)
+            cursor.execute("DELETE FROM watchlist WHERE usersid = %(hold_id)s", {"hold_id": usernameid})
 
     return render_template('profile.html', signedin = signedin, usernames = usernames, usersid = usersid, form = form, account = account )
 
@@ -448,7 +451,7 @@ def reset_password(token):
         userids = str(user[0])
         
         update_script = "UPDATE users SET pwd = %(hold_pwd)s WHERE userid = %(hold_id)s"
-        data = ({"hold_pwd": unhashedpw},{"hold_id": userids})
+        data = ({"hold_pwd": unhashedpw, "hold_id": userids})
         cursor.execute(update_script, data)
 
 
@@ -469,8 +472,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         scriptvalues = form.email.data
-        script = ("SELECT * FROM users WHERE email = %(hold_email)s", {"hold_id": scriptvalues})
-        cursor.execute(script)
+        cursor.execute("SELECT * FROM users WHERE email = %(hold_email)s", {"hold_email": scriptvalues})
         account = cursor.fetchone()
         hashedpw = bcrypt.checkpw(form.password.data.encode('utf-8'), account[2].encode('utf-8'))
         

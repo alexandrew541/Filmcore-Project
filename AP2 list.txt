@@ -2,19 +2,21 @@ LIST OF AP2 FEATURES AND REQUIREMENTS
 
 
 ------------MUST BE DONE----------
-Paramiterised queries
-Search feature bugs removed
 
 Search page/ Watchlist layout changed
-Fix all webpages styling
+Fix home styling
 Flash messages working 
 Website footer
 Comment All Code 
+Fix Navbar issues
+Fix form styleing and sizing
+Fix styling of move/tv show pages
+Add availability on other platforms API
+Profile page styleing
 
 -------------TIME DEPENDANT---------
 
 Webpage scaling
-Cosign similarity implementation
 
 -----------------COMPLETE----------------
 
@@ -26,6 +28,5 @@ Account delete button
 Top250 page implementation
 Password change
 Password reset
-
-API key
-k_10ri6dyy
+Parameterized queries
+Search feature bugs removed

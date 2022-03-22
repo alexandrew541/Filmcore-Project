@@ -11,14 +11,17 @@
                 <p class="lead">Search for any movie or tv show</p>
                 <div class="input-group mb-3">
                     
-                    <input type="search" class = "form-control searchb" id="exampleSearch" aria-describedby="searches"
-                    placeholder="search..." name = "searches">
-                    <button type="reset" class=" btn clearbutton">&times;</button>
+                    <input type="search" style="text-align:center;" class = "form-control searchb" id="exampleSearch" aria-describedby="searches"
+                    placeholder="search..." name = "searches" autocomplete="off">
+                    
                 </div>
-                <button type="submit" class="btn btn-default">Search</button>
+                <div>
+                    <button type="submit" class="btn btn-default">Search</button>
                     {% if error %}
-                    <p class=error><strong>Error:</strong> {{ error }}
+                    <p class=error><strong>Search term :</strong> {{ error }}
                     {% endif %} 
+                </div>
+ 
                 </form>
                 
             </div>
