@@ -9,7 +9,6 @@ Flash messages working
 Website footer
 Comment All Code 
 Fix Navbar issues
-Fix form styleing and sizing
 Fix styling of move/tv show pages
 Add availability on other platforms API
 Profile page styleing
@@ -30,3 +29,4 @@ Password change
 Password reset
 Parameterized queries
 Search feature bugs removed
+Fix form styleing and sizing

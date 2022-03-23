@@ -22,7 +22,6 @@ database = databaseconn.database
 dbusername = databaseconn.dbusername
 dbpwd = databaseconn.dbpwd
 dbport_id = databaseconn.dbport_id
-conn_error = False
 
 
 #Varible declaration
@@ -37,12 +36,12 @@ movieid = ""
 try:
     con = psycopg2.connect(host = hostname, dbname = database, user = dbusername, password = dbpwd, port = dbport_id)
     con.autocommit = True
+    cursor = con.cursor()
 
 except Exception as error:
-    conn_error = True
-    print('Connection to database is faulty')
+    redirect(url_for('catch'))
 
-cursor = con.cursor()
+
 
 #Home Page
 @app.route("/")
@@ -59,21 +58,25 @@ def home():
     cut_upcoming_data = ""
     if hold == True:
 
-        req = Request('https://imdb-api.com/en/API/MostPopularMovies/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
-        pop_mov_data = json.loads(urlopen(req).read())
-        cut_data = pop_mov_data["items"][0:5]
+        try:
+            req = Request('https://imdb-api.com/en/API/MostPopularMovies/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+            pop_mov_data = json.loads(urlopen(req).read())
+            cut_data = pop_mov_data["items"][0:5]
 
-        tvreq = Request('https://imdb-api.com/en/API/MostPopularTVs/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
-        pop_tv_data = json.loads(urlopen(tvreq).read())
-        cut_tv_data = pop_tv_data["items"][0:5]
+            tvreq = Request('https://imdb-api.com/en/API/MostPopularTVs/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+            pop_tv_data = json.loads(urlopen(tvreq).read())
+            cut_tv_data = pop_tv_data["items"][0:5]
 
-        theatreq = Request('https://imdb-api.com/en/API/InTheaters/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
-        theatr_data = json.loads(urlopen(theatreq).read())
-        cut_theatr_data = theatr_data["items"][0:5]
+            theatreq = Request('https://imdb-api.com/en/API/InTheaters/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+            theatr_data = json.loads(urlopen(theatreq).read())
+            cut_theatr_data = theatr_data["items"][0:5]
 
-        upcomingreq = Request('https://imdb-api.com/en/API/ComingSoon/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
-        upcoming_data = json.loads(urlopen(upcomingreq).read())
-        cut_upcoming_data = upcoming_data["items"][0:5]
+            upcomingreq = Request('https://imdb-api.com/en/API/ComingSoon/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+            upcoming_data = json.loads(urlopen(upcomingreq).read())
+            cut_upcoming_data = upcoming_data["items"][0:5]
+        
+        except Exception:
+            return redirect(url_for('catch'))
     
     
     return render_template('home.html', signedin = signedin, data1 = cut_data, data2 = cut_tv_data, data3 = cut_theatr_data, 
@@ -124,9 +127,13 @@ def comingsoon():
 @app.route("/top250", methods=['GET'])
 def top250():
 
-    req = Request('https://imdb-api.com/en/API/Top250Movies/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
-    data = json.loads(urlopen(req).read())
-    data = data["items"]
+    try:
+        req = Request('https://imdb-api.com/en/API/Top250Movies/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+        data = json.loads(urlopen(req).read())
+        data = data["items"]
+    
+    except Exception:
+        return redirect(url_for('catch'))    
 
     return render_template('top250.html', data = data, signedin = signedin, usernames = usernames, usersid = usersid )
 
@@ -135,9 +142,13 @@ def top250():
 @app.route("/top250tv", methods=['GET'])
 def top250tv():
 
-    req = Request('https://imdb-api.com/en/API/Top250TVs/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
-    data = json.loads(urlopen(req).read())
-    data = data["items"]
+    try:
+        req = Request('https://imdb-api.com/en/API/Top250TVs/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+        data = json.loads(urlopen(req).read())
+        data = data["items"]
+    
+    except Exception:
+        return redirect(url_for('catch'))      
 
     return render_template('top250tv.html', data = data, signedin = signedin, usernames = usernames, usersid = usersid )
 
@@ -160,20 +171,24 @@ def search():
         if ' ' in searchvalue:
             searchvalue = str(searchvalue).replace(' ', '_')
 
-    if searchvalue == '':
-        return redirect(url_for('home'))
+    try:
+        if searchvalue == '':
+            return redirect(url_for('home'))
+            
+        with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&s=' + searchvalue) as url:
+            data = json.loads(url.read().decode())
+
+            if data['Response'] == "False":
+                error = 'Invalid credentials'
+                return render_template('home.html', signedin = signedin, usernames = usernames, usersid = usersid, error = error )
+
+        if '_' in searchvalue:
+            displaysearch = str(searchvalue).replace('_', ' ') 
+        else:
+            displaysearch = searchvalue
         
-    with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&s=' + searchvalue) as url:
-        data = json.loads(url.read().decode())
-
-        if data['Response'] == "False":
-            error = 'Invalid credentials'
-            return render_template('home.html', signedin = signedin, usernames = usernames, usersid = usersid, error = error )
-
-    if '_' in searchvalue:
-        displaysearch = str(searchvalue).replace('_', ' ') 
-    else:
-        displaysearch = searchvalue
+    except Exception:
+        return redirect(url_for('catch'))  
 
     return render_template('search.html', posts = data, signedin = signedin, usernames = usernames, usersid = usersid, searchvalue = searchvalue, 
     error = error, displaysearch = displaysearch )
@@ -182,14 +197,23 @@ def search():
 #Movie Page
 @app.route("/movie/<string:movieid>", methods = ['GET', 'POST'])
 def movie(movieid):
-    with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&i=' + movieid) as url:
-        data = json.loads(url.read().decode())
+    try:
 
+        with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&i=' + movieid) as url:
+            data = json.loads(url.read().decode())
+
+    except Exception:
+        return redirect(url_for('catch'))
     
     stringuser = str(usersid)
 
     if usersid != '':
-        cursor.execute("SELECT * FROM watchlist WHERE movieid = %(hold_mov)s AND usersid = %(hold_id)s", {"hold_mov": movieid , "hold_id": stringuser}  )
+        try:
+            cursor.execute("SELECT * FROM watchlist WHERE movieid = %(hold_mv)s AND usersid = %(hold_id)s", {"hold_mov": movieid , "hold_id": stringuser}  )
+
+        except Exception:
+            return redirect(url_for('catch'))
+
 
         if cursor.rowcount > 0:
             add = True
@@ -212,12 +236,15 @@ def movie(movieid):
     form = MovieSubmit()
 
     if form.validate_on_submit():
-        
-        insert = "INSERT INTO watchlist(movieid, moviename, movieimage, movieType, movieyear, usersID) VALUES(%(hold_id)s,%(hold_name)s,%(hold_image)s,%(hold_Type)s,%(hold_year)s,%(hold_ids)s)"
-        
-        data = {"hold_id": movieID, "hold_name": movieName, "hold_image": movieImage, "hold_Type": movieType, "hold_year": movieYear, "hold_ids": stringuser}
-        
-        cursor.execute(insert, data)
+        try:
+            insert = "INSERT INTO watchlist(movieid, moviename, movieimage, movieType, movieyear, usersID) VALUES(%(hold_id)s,%(hold_name)s,%(hold_image)s,%(hold_Type)s,%(hold_year)s,%(hold_ids)s)"
+            
+            data = {"hold_id": movieID, "hold_name": movieName, "hold_image": movieImage, "hold_Type": movieType, "hold_year": movieYear, "hold_ids": stringuser}
+            
+            cursor.execute(insert, data)
+
+        except Exception:
+            return redirect(url_for('catch'))
 
         flash(f'{movieName} has been added to your watchlist!', 'success') 
 
@@ -229,9 +256,13 @@ def movie(movieid):
 def watchlist():
     if signedin == False:
         return redirect(url_for('login'))
-    fkuser_id = str(usersid)
-    
-    cursor.execute("SELECT * FROM watchlist WHERE usersid = %(hold_id)s", {"hold_id": fkuser_id})
+    try:
+        fkuser_id = str(usersid)
+        
+        cursor.execute("SELECT * FROM watchlist WHERE usersid = %(hold_id)s", {"hold_id": fkuser_id})
+
+    except Exception:
+        return redirect(url_for('catch'))
 
     wlist = cursor.fetchall()
     return render_template('watchlist.html', signedin = signedin, usernames = usernames, usersid = usersid, wlist = wlist )
@@ -240,19 +271,22 @@ def watchlist():
 #Watchlist movie page
 @app.route("/watchlist/movie/<string:movieid>", methods = ['GET', 'POST'])
 def watchlist_movie(movieid):
-    with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&i=' + movieid) as url:
-        data = json.loads(url.read().decode())
+    try:
+        with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&i=' + movieid) as url:
+            data = json.loads(url.read().decode())
     
-    form = MovieDelete()
+        form = MovieDelete()
 
-    stringuser = str(usersid)
-    strmovie = str(movieid)
+        stringuser = str(usersid)
+        strmovie = str(movieid)
 
-    if form.validate_on_submit():
-        cursor.execute("DELETE FROM watchlist WHERE movieid = %(hold_mov)s AND usersid = %(hold_id)s", {"hold_mov": strmovie, "hold_id": stringuser}  )
+        if form.validate_on_submit():
+            cursor.execute("DELETE FROM watchlist WHERE movieid = %(hold_mov)s AND usersid = %(hold_id)s", {"hold_mov": strmovie, "hold_id": stringuser}  )
 
-        return redirect(url_for('watchlist'))
+            return redirect(url_for('watchlist'))
 
+    except Exception:
+        return redirect(url_for('catch'))
 
     return render_template('watchlist_movie.html', movies = data, form = form, signedin = signedin, usernames = usernames, usersid = usersid)
 
@@ -274,62 +308,71 @@ def register():
         lastname = form.lastname.data
         user = username, pwd, email, firstname, lastname
 
-        cursor.execute("SELECT * FROM users WHERE username = %(hold_username)s", {"hold_id": username})
-        if cursor.rowcount > 0:
-            flash(f'This username is already taken', 'warning')
-            return redirect(url_for('register', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
-
-        else:
-            cursor.execute("SELECT * FROM users WHERE email = %(hold_email)s", {"hold_id": email})
-
+        try:
+            cursor.execute("SELECT * FROM users WHERE username = %(hold_username)s", {"hold_id": username})
             if cursor.rowcount > 0:
-                flash(f'This email is already associated to another account!', 'warning')
+                flash(f'This username is already taken', 'warning')
                 return redirect(url_for('register', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
-        
+
             else:
-                insert = "INSERT INTO users(username,pwd,email,firstname,lastname) VALUES(%(hold_username)s,%(hold_pwd)s,%(hold_email)s,%(hold_firstname)s,%(hold_lastname)s)"
-        
-                data = ({"hold_username": username, "hold_pwd": pwd, "hold_email": email, "hold_firstname": firstname, "hold_lastname": lastname})
-        
-                cursor.execute(insert, data)
+                cursor.execute("SELECT * FROM users WHERE email = %(hold_email)s", {"hold_id": email})
 
-                cursor.execute("SELECT * FROM users WHERE username = %(hold_username)s AND email = %(hold_email)s", {"hold_username":username , "hold_email": email}  )
+                if cursor.rowcount > 0:
+                    flash(f'This email is already associated to another account!', 'warning')
+                    return redirect(url_for('register', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
+            
+                else:
+                    insert = "INSERT INTO users(username,pwd,email,firstname,lastname) VALUES(%(hold_username)s,%(hold_pwd)s,%(hold_email)s,%(hold_firstname)s,%(hold_lastname)s)"
+            
+                    data = ({"hold_username": username, "hold_pwd": pwd, "hold_email": email, "hold_firstname": firstname, "hold_lastname": lastname})
+            
+                    cursor.execute(insert, data)
 
-                account = cursor.fetchone()
+                    cursor.execute("SELECT * FROM users WHERE username = %(hold_username)s AND email = %(hold_email)s", {"hold_username":username , "hold_email": email}  )
 
-                signedin = True
-                usernames = username
-                usersid = account[0]
+                    account = cursor.fetchone()
 
-                flash(f'Account created for {username}!', 'success')
+                    signedin = True
+                    usernames = username
+                    usersid = account[0]
 
-                return redirect(url_for('home', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
+                    flash(f'Account created for {username}!', 'success')
+
+                    return redirect(url_for('home', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
+
+        except Exception:
+            return redirect(url_for('catch'))
+
     return render_template('register.html', title='Register', form=form, signedin = signedin, usernames = usernames)
 
 
 #Profile Page
 @app.route("/profile/<int:usersid>", methods=['GET', 'POST'])
 def profile(usersid):
-    if signedin == False:
-        return redirect(url_for('login'))
-    
-    else:
-        usernameid = str(usersid)
-        cursor.execute("SELECT * FROM users WHERE userid = %(hold_id)s", {"hold_id": usernameid})
-        account = cursor.fetchone() 
+    try:
+        if signedin == False:
+            return redirect(url_for('login'))
+        
+        else:
+            usernameid = str(usersid)
+            cursor.execute("SELECT * FROM users WHERE userid = %(hold_id)s", {"hold_id": usernameid})
+            account = cursor.fetchone() 
 
-    form = ProfileForm()
+        form = ProfileForm()
 
-    if form.validate_on_submit():
+        if form.validate_on_submit():
 
-        if form.submit.data: 
-            cursor.execute("DELETE FROM watchlist WHERE usersid = %(hold_id)s", {"hold_id": usernameid})
-            cursor.execute("DELETE FROM users WHERE usersid = %(hold_id)s", {"hold_id": usernameid})
+            if form.submit.data: 
+                cursor.execute("DELETE FROM watchlist WHERE usersid = %(hold_id)s", {"hold_id": usernameid})
+                cursor.execute("DELETE FROM users WHERE usersid = %(hold_id)s", {"hold_id": usernameid})
 
-            return redirect(url_for('logout'))
+                return redirect(url_for('logout'))
 
-        elif form.submit2.data:
-            cursor.execute("DELETE FROM watchlist WHERE usersid = %(hold_id)s", {"hold_id": usernameid})
+            elif form.submit2.data:
+                cursor.execute("DELETE FROM watchlist WHERE usersid = %(hold_id)s", {"hold_id": usernameid})
+
+    except Exception:
+        return redirect(url_for('catch'))
 
     return render_template('profile.html', signedin = signedin, usernames = usernames, usersid = usersid, form = form, account = account )
 
@@ -343,21 +386,25 @@ def password_change():
     form = PasswordChange()
 
     if form.validate_on_submit():
-        usernameid = str(usersid)
-        script = ("SELECT * FROM users WHERE userid = %(hold_id)s", {"hold_id": usernameid})
-        cursor.execute(script)
-        account = cursor.fetchone()
-        hashedpw = bcrypt.checkpw(form.old_password.data.encode('utf-8'), account[2].encode('utf-8'))
+        try:
+            usernameid = str(usersid)
+            script = ("SELECT * FROM users WHERE userid = %(hold_id)s", {"hold_id": usernameid})
+            cursor.execute(script)
+            account = cursor.fetchone()
+            hashedpw = bcrypt.checkpw(form.old_password.data.encode('utf-8'), account[2].encode('utf-8'))
 
-        if account and hashedpw:
-            new_hashedpw = bcrypt.hashpw(form.new_password.data.encode('utf-8'),bcrypt.gensalt())
-            new_unhashedpw = new_hashedpw.decode('utf-8')
+            if account and hashedpw:
+                new_hashedpw = bcrypt.hashpw(form.new_password.data.encode('utf-8'),bcrypt.gensalt())
+                new_unhashedpw = new_hashedpw.decode('utf-8')
 
-            update_script = "UPDATE users SET pwd = %(hold_pwd)s WHERE userid = %(hold_id)s"
-            data = ({"hold_pwd": new_unhashedpw},{"hold_id": usernameid})
-            cursor.execute(update_script, data)
+                update_script = "UPDATE users SET pwd = %(hold_pwd)s WHERE userid = %(hold_id)s"
+                data = ({"hold_pwd": new_unhashedpw},{"hold_id": usernameid})
+                cursor.execute(update_script, data)
 
-            return redirect(url_for('profile', usersid = usersid))
+                return redirect(url_for('profile', usersid = usersid))
+
+        except Exception:
+            return redirect(url_for('catch'))
 
     return render_template('password_change.html', form = form , signedin = signedin, usernames = usernames, usersid = usersid )
 
@@ -370,13 +417,16 @@ def verify_reset_token(token):
     except:
         return None
 
-    struser = str(user_id)
-    script = ("SELECT * FROM users WHERE userid = %(hold_id)s", {"hold_id": struser})
+    try:
+        struser = str(user_id)
+        script = ("SELECT * FROM users WHERE userid = %(hold_id)s", {"hold_id": struser})
 
-    cursor.execute(script)
-    account = cursor.fetchone()
-    return account
+        cursor.execute(script)
+        account = cursor.fetchone()
+        return account
 
+    except Exception:
+        return redirect(url_for('catch'))
 
 #Email Confirm Page
 @app.route("/confirm-email", methods=['GET', 'POST'])
@@ -388,46 +438,51 @@ def confirm_email():
     form = EmailConfirm()
 
     if form.validate_on_submit():
-        user_email = form.email.data
-        script = ("SELECT * FROM users WHERE email = %(hold_email)s", {"hold_id": user_email})
-        cursor.execute(script)
-        account = cursor.fetchone()
+        try:
+            user_email = form.email.data
+            script = ("SELECT * FROM users WHERE email = %(hold_email)s", {"hold_id": user_email})
+            cursor.execute(script)
+            account = cursor.fetchone()
 
-        if cursor.rowcount == 0:
-            flash(f'This email is not associated with any account', 'warning')
-            redirect(url_for('confirm_email'))
-        
-        else:
-            account_id = account[0]
-
-            s = Serializer(app.config['SECRET_KEY'], expires_sec)
-            token = s.dumps({'user_id': account_id}).decode('utf-8')
-
-            message = f"""
-            Subject: Filmcore Account Password Reset
-
-            Click on the link below to change your password. This link will expire in 30mins
+            if cursor.rowcount == 0:
+                flash(f'This email is not associated with any account', 'warning')
+                redirect(url_for('confirm_email'))
             
-            {url_for('reset_password', token=token, _external=True)}
-            
-            If you did not request this link, please ignore this email.
-            
-            Thanks 
-            Filmcore Support
-            """
-            
-            server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-            server.login(databaseconn.emailcon, databaseconn.passwordcon)
+            else:
+                account_id = account[0]
 
-            server.sendmail(
-                "service.firmcore@gmail.com", 
-                [user_email], 
-                message 
-            )
-            server.quit()
+                s = Serializer(app.config['SECRET_KEY'], expires_sec)
+                token = s.dumps({'user_id': account_id}).decode('utf-8')
+
+                message = f"""
+                Subject: Filmcore Account Password Reset
+
+                Click on the link below to change your password. This link will expire in 30mins
+                
+                {url_for('reset_password', token=token, _external=True)}
+                
+                If you did not request this link, please ignore this email.
+                
+                Thanks 
+                Filmcore Support
+                """
+                
+                server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+                server.login(databaseconn.emailcon, databaseconn.passwordcon)
+
+                server.sendmail(
+                    "service.firmcore@gmail.com", 
+                    [user_email], 
+                    message 
+                )
+                server.quit()
             
             flash('An email has been sent with instructions to reset your password.', 'info')
             return redirect(url_for('login'))
+            
+        except Exception:
+            return redirect(url_for('catch'))            
+        
 
     return render_template('confirm_email.html', signedin = signedin, usernames = usernames, usersid = usersid, form = form )
 
@@ -445,21 +500,26 @@ def reset_password(token):
         return redirect(url_for('home'))
     form = PasswordReset()
     if form.validate_on_submit():
-        hashedpw = bcrypt.hashpw(form.password.data.encode('utf-8'),bcrypt.gensalt())
-        unhashedpw = hashedpw.decode('utf-8')
+        try:
+            hashedpw = bcrypt.hashpw(form.password.data.encode('utf-8'),bcrypt.gensalt())
+            unhashedpw = hashedpw.decode('utf-8')
 
-        userids = str(user[0])
+            userids = str(user[0])
+            
+            update_script = "UPDATE users SET pwd = %(hold_pwd)s WHERE userid = %(hold_id)s"
+            data = ({"hold_pwd": unhashedpw, "hold_id": userids})
+            cursor.execute(update_script, data)
+
+
+            signedin = True
+            usernames = user[1]
+            usersid = user[0]
+
+            return redirect(url_for('home', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
         
-        update_script = "UPDATE users SET pwd = %(hold_pwd)s WHERE userid = %(hold_id)s"
-        data = ({"hold_pwd": unhashedpw, "hold_id": userids})
-        cursor.execute(update_script, data)
+        except Exception:
+            return redirect(url_for('catch'))
 
-
-        signedin = True
-        usernames = user[1]
-        usersid = user[0]
-
-        return redirect(url_for('home', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
     return render_template('password_reset.html', form=form)
 
 
@@ -471,20 +531,24 @@ def login():
         return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
-        scriptvalues = form.email.data
-        cursor.execute("SELECT * FROM users WHERE email = %(hold_email)s", {"hold_email": scriptvalues})
-        account = cursor.fetchone()
-        hashedpw = bcrypt.checkpw(form.password.data.encode('utf-8'), account[2].encode('utf-8'))
-        
-        if account and hashedpw:
-            global usernames, usersid
-            signedin = True
-            usersid = account[0]
-            usernames = account[1]
-            return redirect(url_for('home'))
+        try:
+            scriptvalues = form.email.data
+            cursor.execute("SELECT * FROM users WHERE email = %(hold_email)s", {"hold_email": scriptvalues})
+            account = cursor.fetchone()
+            hashedpw = bcrypt.checkpw(form.password.data.encode('utf-8'), account[2].encode('utf-8'))
             
-        else:
-            flash(f'Login Unsuccessful. Please check username and password', 'danger')
+            if account and hashedpw:
+                global usernames, usersid
+                signedin = True
+                usersid = account[0]
+                usernames = account[1]
+                return redirect(url_for('home'))
+                
+            else:
+                flash(f'Login Unsuccessful. Please check username and password', 'danger')
+        
+        except Exception:
+            return redirect(url_for('catch'))
     
     return render_template('login.html', title='Login', form=form, signedin = signedin, usernames = usernames, usersid = usersid)
 
@@ -500,6 +564,12 @@ def logout():
         usernames = ""
         usersid = ''
     return redirect(url_for('home'))
+
+
+#Catch Page
+@app.route("/error", methods=['GET'])
+def catch():
+    return render_template('catch.html')
 
 
 #Flask run method
