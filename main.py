@@ -87,8 +87,12 @@ def home():
 @app.route("/popular-movies", methods=['GET'])
 def popularmovies():
 
-    global pop_mov_data
-    data = pop_mov_data["items"]
+    try:
+        global pop_mov_data
+        data = pop_mov_data["items"]
+    
+    except Exception:
+        return redirect(url_for('catch'))
 
     return render_template('popular_movies.html', data = data, signedin = signedin, usernames = usernames, usersid = usersid )
 
@@ -97,8 +101,12 @@ def popularmovies():
 @app.route("/popular-tv", methods=['GET'])
 def populartv():
 
-    global pop_tv_data
-    data = pop_tv_data["items"]
+    try:
+        global pop_tv_data
+        data = pop_tv_data["items"]
+
+    except Exception:
+        return redirect(url_for('catch'))
 
     return render_template('popular_tv.html', data = data, signedin = signedin, usernames = usernames, usersid = usersid )
 
@@ -107,8 +115,12 @@ def populartv():
 @app.route("/in-theatres", methods=['GET'])
 def intheatres():
 
-    global theatreq
-    data = theatreq["items"]
+    try:
+        global theatreq
+        data = theatreq["items"]
+
+    except Exception:
+        return redirect(url_for('catch'))
 
     return render_template('in_theatres.html', data = data, signedin = signedin, usernames = usernames, usersid = usersid )
 
@@ -117,8 +129,12 @@ def intheatres():
 @app.route("/coming-soon", methods=['GET'])
 def comingsoon():
 
-    global upcomingreq
-    data = upcomingreq["items"]
+    try:
+        global upcomingreq
+        data = upcomingreq["items"]
+
+    except Exception:
+        return redirect(url_for('catch'))
 
     return render_template('coming_soon.html', data = data, signedin = signedin, usernames = usernames, usersid = usersid )
 
@@ -209,7 +225,7 @@ def movie(movieid):
 
     if usersid != '':
         try:
-            cursor.execute("SELECT * FROM watchlist WHERE movieid = %(hold_mv)s AND usersid = %(hold_id)s", {"hold_mov": movieid , "hold_id": stringuser}  )
+            cursor.execute("SELECT * FROM watchlist WHERE movieid = %(hold_mov)s AND usersid = %(hold_id)s", {"hold_mov": movieid , "hold_id": stringuser}  )
 
         except Exception:
             return redirect(url_for('catch'))
