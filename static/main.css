@@ -12,7 +12,12 @@ body {
   color: #333333;
   width: 85%;
   margin: auto;
-  
+  min-height: 50vh !important;
+  height: auto !important;
+}
+
+.form-group{
+  margin-bottom: 1vh !important;
 }
 
 .maincon{
@@ -126,16 +131,12 @@ a.article-title:hover {
 }
 
 .content-section{
-  width: 50%;
+  width: 60%;
   margin: auto;
 }
 
 .hmpage{
   height: 10vh;
-}
-
-html, body {
-  height:100%;
 }
 
 .container{
@@ -150,6 +151,7 @@ html, body {
   display: table;
   width: 100%;
 }
+
 #form_search {
   display: table-cell;
   text-align: center;
@@ -356,4 +358,17 @@ ion-icon {
   visibility: hidden;
   transition: all 0.35s ease-in-out;
   overflow: hidden;
+}
+
+/* Specifying form text size */
+input[type="text"] {
+  font-family: lato,sans-serif !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+}
+
+/* Profile Box */
+
+.profile-box{
+  margin-top: 5vh;
 }

@@ -1,13 +1,13 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container defpage"></div>
-    <div class="content-section bg-secondary" style="color: #EEEEEE;">
+    <div class="content-section bg-secondary" style="color: #EEEEEE; font-size: small;">
         <form method="POST" action="">
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
                 <legend class="border-bottom mb-4">Confirm Email</legend>
                 <div class="form-group">
-                    {{ form.email.label(class="form-control-label") }}
+                    {{ form.email.label(class="form-control-label", type="text") }}
                     {% if form.email.errors %}
                         {{ form.email(class="form-control form-control-lg is-invalid") }}
                         <div class="invalid-feedback">
@@ -20,7 +20,7 @@
                     {% endif %}
                 </div>
                 <div class="form-group">
-                    {{ form.confirm_email.label(class="form-control-label") }}
+                    {{ form.confirm_email.label(class="form-control-label", type="text") }}
                     {% if form.confirm_email.errors %}
                         {{ form.confirm_email(class="form-control form-control-lg is-invalid") }}
                         <div class="invalid-feedback">

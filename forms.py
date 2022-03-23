@@ -6,16 +6,17 @@ from wtforms.validators import DataRequired, Length, Email, EqualTo
 #Form for account registration
 class RegistrationForm(FlaskForm):
     username = StringField('Username',
-                           validators=[DataRequired(), Length(min=5, max=25)])
+                        validators=[DataRequired(), Length(min=5, max=25)])
     email = StringField('Email',
                         validators=[DataRequired(), Email()])
-    password = PasswordField('Password', Length(min=5, max=20) ,validators=[DataRequired()])
+    password = PasswordField('Password',
+                        validators=[DataRequired(), Length(min=5, max=20)])
     confirm_password = PasswordField('Confirm Password',
-                                     validators=[DataRequired(), EqualTo('password')])
+                        validators=[DataRequired(), EqualTo('password')])
     firstname = StringField('First name',
-                           validators=[DataRequired(), Length(min=5, max=20)])
+                        validators=[DataRequired(), Length(min=5, max=20)])
     lastname = StringField('Last name',
-                           validators=[DataRequired(), Length(min=5, max=30)])                          
+                        validators=[DataRequired(), Length(min=5, max=30)])                          
     submit = SubmitField('Sign Up')
 
 
@@ -39,7 +40,8 @@ class ProfileForm(FlaskForm):
 class LoginForm(FlaskForm):
     email = StringField('Email',
                         validators=[DataRequired(), Email()])
-    password = PasswordField('Password', Length(min=5, max=20), validators=[DataRequired()])
+    password = PasswordField('Password', 
+                        validators=[DataRequired(), Length(min=5, max=20)])
     submit = SubmitField('Log In')
 
 
@@ -55,18 +57,18 @@ class EmailConfirm(FlaskForm):
 #Form for resetting a user password. Only accessable via email link
 class PasswordReset(FlaskForm):
     password = PasswordField('Password', 
-                            Length(min=5, max=20), validators=[DataRequired()])
+                        validators=[DataRequired(),Length(min=5, max=20)])
     confirm_password = PasswordField('Confirm Password',
-                            validators=[DataRequired(), EqualTo('password')])
+                        validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Submit')
 
 
 #Form for changing password when logged in.
 class PasswordChange(FlaskForm):
     old_password = PasswordField('Old Password', 
-                            Length(min=5, max=20), validators=[DataRequired()])
+                        validators=[DataRequired(), Length(min=5, max=20)])
     new_password = PasswordField('New Password', 
-                            Length(min=5, max=20), validators=[DataRequired()])
+                        validators=[DataRequired(), Length(min=5, max=20),])
     confirm_password = PasswordField('Confirm Password',
-                            validators=[DataRequired(), EqualTo('new_password')])
+                        validators=[DataRequired(), EqualTo('new_password')])
     submit = SubmitField('Submit')
