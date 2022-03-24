@@ -1,3 +1,5 @@
+from logging import warning
+from pickle import TRUE
 from flask import Flask, render_template, redirect, url_for, request, flash
 import urllib.request, json 
 from flask import Flask
@@ -39,8 +41,7 @@ try:
     cursor = con.cursor()
 
 except Exception as error:
-    redirect(url_for('catch'))
-
+    flash("Database connection faulty", 'warning')
 
 
 #Home Page
@@ -177,28 +178,32 @@ def top250tv():
 def search():
     global searchvalue
 
-    if searchvalue != '':
-        pass
+    try:
+        if searchvalue != '':
+            pass
 
-    elif searchvalue == ' ':
-        return redirect(url_for('home'))
+        elif searchvalue == ' ':
+            return redirect(url_for('home'))
 
-    else:
-        if searchvalue == '':
-            searchvalue = request.form.get("searches")
-        if ' ' in searchvalue:
-            searchvalue = str(searchvalue).replace(' ', '_')
+        else:
+            if searchvalue == '':
+                searchvalue = request.form.get("searches")
+            if ' ' in searchvalue:
+                searchvalue = str(searchvalue).replace(' ', '_')
 
-    
-    if searchvalue == '':
-        return redirect(url_for('home'))
         
-    with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&s=' + searchvalue) as url:
-        data = json.loads(url.read().decode())
+        if searchvalue == '':
+            return redirect(url_for('home'))
+
+
+        with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&s=' + searchvalue) as url:
+            data = json.loads(url.read().decode())
 
         if data['Response'] == "False":
-            pass
-           
+            flash("No results found", 'warning')
+    
+    except Exception:
+        return redirect(url_for('catch')) 
 
     if '_' in searchvalue:
         displaysearch = str(searchvalue).replace('_', ' ') 
@@ -213,27 +218,31 @@ def search():
 #Movie Page
 @app.route("/movie/<string:movieid>", methods = ['GET', 'POST'])
 def movie(movieid):
-    form = MovieSubmit()
 
-    with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&i=' + movieid) as url:
-        data = json.loads(url.read().decode())
+    try:
+        with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&i=' + movieid) as url:
+            data = json.loads(url.read().decode())
 
-    stringuser = str(usersid)
+        stringuser = str(usersid)
 
-    if usersid != '':
-        
-        cursor.execute("SELECT * FROM watchlist WHERE movieid = %(hold_mov)s AND usersid = %(hold_id)s", {"hold_mov": movieid , "hold_id": stringuser}  )
+        if usersid != '':
+            
+            cursor.execute("SELECT * FROM watchlist WHERE movieid = %(hold_mov)s AND usersid = %(hold_id)s", {"hold_mov": movieid , "hold_id": stringuser}  )
 
-        if cursor.rowcount > 0:
-            add = True
+            if cursor.rowcount > 0:
+                add = True
 
+            else:
+                if cursor.rowcount == 0:
+                    add = False
+                    
         else:
-            if cursor.rowcount == 0:
-                add = False
-                
-    else:
-        if usersid == '':
-            add = True
+            if usersid == '':
+                add = True
+    
+    except Exception:
+        return redirect(url_for('catch')) 
+    
 
     movieName = data['Title']
     movieImage = data['Poster']
@@ -241,16 +250,18 @@ def movie(movieid):
     movieYear = data['Year']
     movieID = movieid
 
+    form = MovieSubmit()
     
-    if form.validate_on_submit():
-        
-        insert = "INSERT INTO watchlist(movieid, moviename, movieimage, movieType, movieyear, usersID) VALUES(%(hold_id)s,%(hold_name)s,%(hold_image)s,%(hold_Type)s,%(hold_year)s,%(hold_ids)s)"
-        
-        data = ({"hold_id": movieID, "hold_name": movieName, "hold_image": movieImage, "hold_Type": movieType, "hold_year": movieYear, "hold_ids": stringuser})
-        
-        cursor.execute(insert, data)
+    try:
+        if form.validate_on_submit():
 
-        redirect(url_for('movie', movieid = movieid))
+            cursor.execute("INSERT INTO watchlist(movieid, moviename, movieimage, movieType, movieyear, usersID) VALUES(%(hold_id)s,%(hold_name)s,%(hold_image)s,%(hold_Type)s,%(hold_year)s,%(hold_ids)s)", 
+            {"hold_id": movieID, "hold_name": movieName, "hold_image": movieImage, "hold_Type": movieType, "hold_year": movieYear, "hold_ids": stringuser} )
+            
+            flash("Movie added to watchlist", 'success')
+    
+    except Exception:
+        return redirect(url_for('catch')) 
 
     return render_template('movie.html', movies = data, form = form, signedin = signedin, usernames = usernames, usersid = usersid, add = add)
 
@@ -299,52 +310,54 @@ def watchlist_movie(movieid):
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
-    if form.validate_on_submit():
-        hashedpw = bcrypt.hashpw(form.password.data.encode('utf-8'),bcrypt.gensalt())
-        unhashedpw = hashedpw.decode('utf-8')
+    try:
+        if form.validate_on_submit():
+            hashedpw = bcrypt.hashpw(form.password.data.encode('utf-8'),bcrypt.gensalt())
+            unhashedpw = hashedpw.decode('utf-8')
 
-        global signedin, usernames, usersid
+            global signedin, usernames, usersid
 
-        username = form.username.data
-        pwd = unhashedpw
-        email = form.email.data
-        firstname = form.firstname.data
-        lastname = form.lastname.data
-        user = username, pwd, email, firstname, lastname
+            username = form.username.data
+            pwd = unhashedpw
+            email = form.email.data
+            firstname = form.firstname.data
+            lastname = form.lastname.data
+            user = username, pwd, email, firstname, lastname
 
-        
-        cursor.execute("SELECT * FROM users WHERE username = %(hold_username)s", {"hold_username": username})
-        if cursor.rowcount > 0:
-            flash(f'This username is already taken', 'warning')
-            return redirect(url_for('register', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
-
-        else:
-            cursor.execute("SELECT * FROM users WHERE email = %(hold_email)s", {"hold_email": email})
-
+            
+            cursor.execute("SELECT * FROM users WHERE username = %(hold_username)s", {"hold_username": username})
             if cursor.rowcount > 0:
-                flash(f'This email is already associated to another account!', 'warning')
+                flash('This username is already taken', 'warning')
                 return redirect(url_for('register', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
-        
+
             else:
-                insert = "INSERT INTO users(username,pwd,email,firstname,lastname) VALUES(%(hold_username)s,%(hold_pwd)s,%(hold_email)s,%(hold_firstname)s,%(hold_lastname)s)"
-        
-                data = ({"hold_username": username, "hold_pwd": pwd, "hold_email": email, "hold_firstname": firstname, "hold_lastname": lastname})
-        
-                cursor.execute(insert, data)
+                cursor.execute("SELECT * FROM users WHERE email = %(hold_email)s", {"hold_email": email})
 
-                cursor.execute("SELECT * FROM users WHERE username = %(hold_username)s AND email = %(hold_email)s", {"hold_username":username , "hold_email": email}  )
+                if cursor.rowcount > 0:
+                    flash('This email is already associated to another account!', 'warning')
+                    return redirect(url_for('register', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
+            
+                else:
+                    insert = "INSERT INTO users(username,pwd,email,firstname,lastname) VALUES(%(hold_username)s,%(hold_pwd)s,%(hold_email)s,%(hold_firstname)s,%(hold_lastname)s)"
+            
+                    data = ({"hold_username": username, "hold_pwd": pwd, "hold_email": email, "hold_firstname": firstname, "hold_lastname": lastname})
+            
+                    cursor.execute(insert, data)
 
-                account = cursor.fetchone()
+                    cursor.execute("SELECT * FROM users WHERE username = %(hold_username)s AND email = %(hold_email)s", {"hold_username":username , "hold_email": email}  )
 
-                signedin = True
-                usernames = username
-                usersid = account[0]
+                    account = cursor.fetchone()
 
-                flash(f'Account created for {username}!', 'success')
+                    signedin = True
+                    usernames = username
+                    usersid = account[0]
 
-                return redirect(url_for('home', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
+                    flash(f'Account created for {usernames}!', 'success')
 
-
+                    return redirect(url_for('home', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
+    
+    except Exception:
+        return redirect(url_for('catch')) 
 
     return render_template('register.html', title='Register', form=form, signedin = signedin, usernames = usernames)
 
@@ -352,29 +365,33 @@ def register():
 #Profile Page
 @app.route("/profile/<int:usersid>", methods=['GET', 'POST'])
 def profile(usersid):
-    
-    if signedin == False:
-        return redirect(url_for('login'))
-    
-    else:
-        usernameid = str(usersid)
-        cursor.execute("SELECT * FROM users WHERE userid = %(hold_id)s", {"hold_id": usernameid})
-        account = cursor.fetchone() 
+    try:
+        if signedin == False:
 
-    form = ProfileForm()
+            return redirect(url_for('login'))
+        
+        else:
+            usernameid = str(usersid)
+            cursor.execute("SELECT * FROM users WHERE userid = %(hold_id)s", {"hold_id": usernameid})
+            account = cursor.fetchone() 
 
-    if form.validate_on_submit():
+        form = ProfileForm()
 
-        if form.submit.data: 
-            cursor.execute("DELETE FROM watchlist WHERE usersid = %(hold_id)s", {"hold_id": usernameid})
-            cursor.execute("DELETE FROM users WHERE userid = %(hold_id)s", {"hold_id": usernameid})
+        if form.validate_on_submit():
 
-            return redirect(url_for('logout'))
+            if form.submit.data: 
+                cursor.execute("DELETE FROM watchlist WHERE usersid = %(hold_id)s", {"hold_id": usernameid})
+                cursor.execute("DELETE FROM users WHERE userid = %(hold_id)s", {"hold_id": usernameid})
+                
+                flash("Account has been deleted, Goodbye!",'info')
+                return redirect(url_for('logout'))
 
-        elif form.submit2.data:
-            cursor.execute("DELETE FROM watchlist WHERE usersid = %(hold_id)s", {"hold_id": usernameid})
-            flash('Watchlist Cleared!', 'success')
-
+            elif form.submit2.data:
+                cursor.execute("DELETE FROM watchlist WHERE usersid = %(hold_id)s", {"hold_id": usernameid})
+                flash("Watchlist has been cleared!",'success')
+                
+    except Exception:
+        return redirect(url_for('catch')) 
 
     return render_template('profile.html', signedin = signedin, usernames = usernames, usersid = usersid, form = form, account = account )
 
@@ -387,26 +404,33 @@ def password_change():
     
     form = PasswordChange()
 
-    if form.validate_on_submit():
-        
-        usernameid = str(usersid)
-        cursor.execute("SELECT * FROM users WHERE userid = %(hold_id)s", {"hold_id": usernameid})
+    try:
+        if form.validate_on_submit():
+            
+            usernameid = str(usersid)
+            cursor.execute("SELECT * FROM users WHERE userid = %(hold_id)s", {"hold_id": usernameid})
+            account = cursor.fetchone()
 
-        account = cursor.fetchone()
-        hashedpw = bcrypt.checkpw(form.old_password.data.encode('utf-8'), account[2].encode('utf-8'))
+            pwd = account[2]
 
-        if account and hashedpw:
-            new_hashedpw = bcrypt.hashpw(form.new_password.data.encode('utf-8'),bcrypt.gensalt())
-            new_unhashedpw = new_hashedpw.decode('utf-8')
+            hashedpw = bcrypt.checkpw(form.old_password.data.encode('utf-8'), pwd.encode('utf-8'))
 
-            update_script = "UPDATE users SET pwd = %(hold_pwd)s WHERE userid = %(hold_id)s"
-            data = ({"hold_pwd": new_unhashedpw ,"hold_id": usernameid})
-            cursor.execute(update_script, data)
-            flash('Password Changed!', 'success')
+            if hashedpw == True:
+                if account and hashedpw:
+                    new_hashedpw = bcrypt.hashpw(form.new_password.data.encode('utf-8'),bcrypt.gensalt())
+                    new_unhashedpw = new_hashedpw.decode('utf-8')
 
-            return redirect(url_for('profile', usersid = usersid))
-
-     
+                    update_script = "UPDATE users SET pwd = %(hold_pwd)s WHERE userid = %(hold_id)s"
+                    data = ({"hold_pwd": new_unhashedpw ,"hold_id": usernameid})
+                    cursor.execute(update_script, data)
+                    flash("Password Changed!", 'success')
+                    return redirect(url_for('profile', usersid = usernameid))
+                    
+            else:
+                flash("Old password is not correct",'warning')
+    
+    except Exception:
+        return redirect(url_for('catch')) 
 
     return render_template('password_change.html', form = form , signedin = signedin, usernames = usernames, usersid = usersid )
 
@@ -446,8 +470,7 @@ def confirm_email():
             account = cursor.fetchone()
 
             if cursor.rowcount == 0:
-                flash(f'This email is not associated with any account', 'warning')
-                redirect(url_for('confirm_email'))
+                flash('This email is not associated with any account', 'warning')
             
             else:
                 account_id = account[0]
@@ -478,8 +501,8 @@ def confirm_email():
                 )
                 server.quit()
             
-            flash('An email has been sent with instructions to reset your password.', 'info')
-            return redirect(url_for('login'))
+                flash('An email has been sent with instructions to reset your password.', 'info')
+                return redirect(url_for('home'))
             
         except Exception:
             return redirect(url_for('catch'))            
@@ -516,6 +539,7 @@ def reset_password(token):
             usernames = user[1]
             usersid = user[0]
 
+            flash("Password has been reset!", 'success')
             return redirect(url_for('home', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
         
         except Exception:
@@ -546,7 +570,7 @@ def login():
                 return redirect(url_for('home'))
                 
             else:
-                flash(f'Login Unsuccessful. Please check username and password', 'danger')
+                flash('Login Unsuccessful. Please check username and password', 'danger')
         
         except Exception:
             return redirect(url_for('catch'))

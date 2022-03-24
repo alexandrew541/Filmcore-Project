@@ -5,6 +5,19 @@
     <div class="container maincon" style="margin-bottom: 5%;">
     <a class="nav-item nav-link btn btn-default backbtn" style="margin-left: 0.5vh;" href="{{ url_for('home') }}">Back</a>
     <h3>Results for "{{displaysearch}}"</h3>
+    <div>
+        <div style="display: table; margin: 0 auto;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+            {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+        </div>
+    </div>
   
     {% for post in posts.Search %}
         <article class="media content-section border-secondary searchpages">

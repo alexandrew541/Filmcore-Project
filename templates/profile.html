@@ -2,7 +2,7 @@
 {% block content %}
 
 <div class="container hmpage"></div>
-  <div class="container px-4 text-center searchbars">
+  <div class="container px-4 text-center searchbars">    
     <h3 style="margin-top: 5%;">{{account[4]}}'s Profile</h3>         
           <div class="profile-container" style="display: flex; justify-content: center; align-items: center;">
               <ul class="list-group" style="width: 40vw;">
@@ -21,6 +21,20 @@
               <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exampleModal">
                   Delete Account
                 </button>
+                
+                <div style="height: 5vh;"></div>
+
+                <div style="display: table; margin: 0 auto;">
+                  {% with messages = get_flashed_messages(with_categories=true) %}
+                      {% if messages %}
+                          {% for category, message in messages %}
+                              <div class="alert alert-{{ category }}">
+                          {{ message }}
+                              </div>
+                          {% endfor %}
+                      {% endif %}
+                  {% endwith %}
+                      </div>       
               
 
                 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -45,7 +59,7 @@
                                   {{ form.submit(class="btn btn-default") }}
                               </div>
                           </fieldset>
-                        </form>                      
+                        </form>           
                       </div>
                     </div>
                   </div>
@@ -74,19 +88,10 @@
                               </div>
                               <div>
                                 <div style="display: table; margin: 0 auto;">
-                            {% with messages = get_flashed_messages(with_categories=true) %}
-                                {% if messages %}
-                                    {% for category, message in messages %}
-                                        <div class="alert alert-{{ category }}">
-                                    {{ message }}
-                                        </div>
-                                    {% endfor %}
-                                {% endif %}
-                            {% endwith %}
                                 </div>
                             </div>
                           </fieldset>
-                        </form>                      
+                        </form>             
                       </div>
                     </div>
                   </div>

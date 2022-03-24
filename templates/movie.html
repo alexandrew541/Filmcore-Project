@@ -1,7 +1,17 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container movstyle"></div>
-
+    <div style="display: table; margin: 0 auto;">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+              {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}">
+              {{ message }}
+                  </div>
+              {% endfor %}
+          {% endif %}
+      {% endwith %}
+          </div>
         {% if (signedin == True) and (add == False) %}
         <form method="POST" action="">
           {{ form.hidden_tag() }}
