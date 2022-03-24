@@ -4,7 +4,19 @@
 <div class="container hmpage">
 </div>
     <header class="bg-secondary bg-gradient text-white">
-        
+        <div>
+            <div style="display: table; margin: 0 auto;">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+            </div>
+        </div>
         <div class="container px-4 text-center searchbars">
             <div class="container" id="parent">
                 <form action="/search" id="form_search" method="POST">
@@ -17,9 +29,6 @@
                 </div>
                 <div>
                     <button type="submit" class="btn btn-default">Search</button>
-                    {% if error %}
-                    <p class=error><strong>Search term :</strong> {{ error }}
-                    {% endif %} 
                 </div>
  
                 </form>

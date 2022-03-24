@@ -2,6 +2,19 @@
 {% block content %}
 <div class="container defpage"></div>
 <p1 class = "titles">{{usernames}}'s Watchlist</p1>
+    <div>
+        <div style="display: table; margin: 0 auto;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+            {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+        </div>
+    </div>
     <div class="container maincon">
         {% for row in wlist %}
         <article class="media content-section border-secondary searchpages">

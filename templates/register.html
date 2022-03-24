@@ -88,6 +88,15 @@
             <div class="form-group">
                 {{ form.submit(class="btn btn-default") }}
             </div>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                  {{ message }}
+                </div>
+              {% endfor %}
+                {% endif %}
+            {% endwith %}
         </form>
     
     <div class="border-top pt-3">

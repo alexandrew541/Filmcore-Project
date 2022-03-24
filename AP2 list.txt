@@ -6,10 +6,13 @@ LIST OF AP2 FEATURES AND REQUIREMENTS
 Search page/ Watchlist layout changed
 Fix home styling
 Flash messages working 
-Website footer
-Comment All Code 
-Fix styling of move/tv show pages
+Website footer 
+Fix styling of movie/tv show pages
 Add availability on other platforms API
+
+Comment All Code
+Movie watchlist add issue
+Add try catch back into some statements
 
 
 -----------------COMPLETE----------------

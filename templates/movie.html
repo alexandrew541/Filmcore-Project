@@ -1,7 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container movstyle"></div>
-        <a class="btn btn-danger moviebtn" href="{{ url_for('search') }}">Back</a>
 
         {% if (signedin == True) and (add == False) %}
         <form method="POST" action="">
@@ -64,7 +63,6 @@
           <ul class="list-group">
             <li class="list-group-item movieinfo" style="text-align: center;"><strong>Ratings</strong></li>
             <li class="list-group-item movieinfo"><strong>IMDB Rating:</strong> {{movies.imdbRating}} with {{movies.imdbVotes}} votes</li>
-            <li class="list-group-item movieinfo"><strong>Internet Movie Database:</strong> {{ movies.Ratings[0].Value }}</li>
             <li class="list-group-item movieinfo"><strong>Metacritic:</strong> {{ movies.Metascore }}</li>
           </ul>
         </div>
