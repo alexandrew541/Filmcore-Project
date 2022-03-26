@@ -9,11 +9,23 @@
             {% for post in data %}
             <article class="media content-section border-secondary searchpages">
                 <div class="media-body">
-                    <a class="searchtitle" href="{{url_for('movie',movieid = post.id)}}">{{ post.title }}</a>
-                    <div class="media-body">
+                    <a class="searchtitle" style="color: white;"> {{ post.rank }}</a> 
                     <img src= "{{ post.image }}" style="width: 5vw; height: 15vh;" />
+                    <table style="display: inline;">
+                        <tr>
+                            
+                            <td><a class="searchtitle" href="{{url_for('movie',movieid = post.id)}}">{{ post.fullTitle }}</a></td>
+                        </tr>
+                        <tr>
+                            <td> <small class="text yeartype">IMDB rating : {{post.imDbRating}} out of {{ post.imDbRatingCount }} votes </small></td>
+                        </tr>
+                        <tr>
+                            <td> <small class="text yeartype">Crew : {{ post.crew }} </small></td>
+                        </tr>
+                    </table>
+                   
                     <div class="media-body">
-                    <small class="text yeartype">{{ post.year }} : {{post.imDbRating}} </small>
+                    
               </article>
               {% endfor %}
             

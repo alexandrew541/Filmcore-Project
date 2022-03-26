@@ -1,5 +1,3 @@
-from logging import warning
-from pickle import TRUE
 from flask import Flask, render_template, redirect, url_for, request, flash
 import urllib.request, json 
 from flask import Flask

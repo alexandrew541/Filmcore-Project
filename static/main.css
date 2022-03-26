@@ -4,13 +4,13 @@ html{
   font-family: lato,sans-serif !important;
   font-weight: 400 !important;
   font-style: normal !important;
-  background: #d8d8d8;
+  background: #31343a;
 }
 
 body {
   background: #afafaf;
   color: #333333;
-  width: 85%;
+  width: 80%;
   margin: auto;
   min-height: 100vh !important;
   height: auto !important;
@@ -197,11 +197,11 @@ a.article-title:hover {
  }
 
  .searchpages{
-   text-align: center;
+   text-align: left;
    float: left;
-   width: 50vh;
+   width: 40vw;
    margin: 0.4vh;
-   background-color: #363A40 ;
+   background-color: #8c8c8c ;
  }
 
  .yeartype{
@@ -210,7 +210,7 @@ a.article-title:hover {
 
 
  .searchtitle{
-   color: #AE4F61 ;
+   color: #32343A ;
  }
 
  .searchtitle:hover{
@@ -254,6 +254,7 @@ a.article-title:hover {
 
 .movieinfo{
   background-color: #6F757D;
+  color: white;
 }
 
 .moviegap{
