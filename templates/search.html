@@ -4,7 +4,7 @@
 <div class="container defpage"></div>
     <div class="container maincon" style="margin-bottom: 5%;">
     <a class="nav-item nav-link btn btn-default backbtn" style="margin-left: 0.5vh;" href="{{ url_for('home') }}">Back</a>
-    <h3>Results for "{{displaysearch}}"</h3>
+    <h3 style="text-align: center;">Results for "{{displaysearch}}"</h3>
     <div>
         <div style="display: table; margin: 0 auto;">
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -20,15 +20,24 @@
     </div>
   
     {% for post in posts.Search %}
-        <article class="media content-section border-secondary searchpages">
-          <div class="media-body">
-              <a class="searchtitle" href="{{url_for('movie',movieid = post.imdbID)}}">{{ post.Title }}</a>
-              <div class="media-body">
-              <img src= "{{ post.Poster }}" style="width: 5vw; height: 15vh;" />
-              <div class="media-body">
-              <small class="text yeartype">{{ post.Year }} : {{post.Type}} </small>
+    <article class="media content-section border-secondary searchpages">
+        <div class="media-body"> 
+            <img src= "{{ post.Poster}}" style="width: 5vw; height: 15vh;" />
+            <table style="display: inline; word-wrap: break-word;">
+                <tr>
+                    <td><a class="searchtitle" href="{{url_for('movie',movieid = post.imdbID)}}">{{ post.Title }}</a></td>
+                </tr>
+                <tr>
+                    <td> <small class="text yeartype">{{ post.Year }} : {{post.Type}} </small></td>
+                </tr>
+            </table>
         </article>
     {% endfor %}
+
+
+           
+        
+
 </div>
 </div>
 <div class="container serpage"></div>

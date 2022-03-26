@@ -5,6 +5,7 @@ html{
   font-weight: 400 !important;
   font-style: normal !important;
   background: #31343a;
+  height: 100% !important;
 }
 
 body {
@@ -21,7 +22,7 @@ body {
 }
 
 .maincon{
-  width: 85% !important;
+  width: 100% !important;
 }
 
 .backbtn{
@@ -192,6 +193,10 @@ a.article-title:hover {
   height: 14vh;
  }
 
+ .movpage{
+   height: 5vh;
+ }
+
  .regpage{
   height: 3vh;
  }
@@ -199,8 +204,8 @@ a.article-title:hover {
  .searchpages{
    text-align: left;
    float: left;
-   width: 40vw;
-   margin: 0.4vh;
+   width: 35vw;
+   margin: 0.5vh;
    background-color: #8c8c8c ;
  }
 

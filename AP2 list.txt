@@ -3,12 +3,10 @@ LIST OF AP2 FEATURES AND REQUIREMENTS
 
 ------------MUST BE DONE----------
 
-Search page/ Watchlist layout changed
 Fix home styling
 Fix styling of movie/tv show pages
 
 Comment All Code
-Website footer 
 
 -----------------COMPLETE----------------
 
@@ -29,3 +27,5 @@ Movie watchlist add issue
 Flash messages working 
 Add try catch back into some statements
 Add availability on other platforms API
+Search page layout changed
+Watchlist layout changed

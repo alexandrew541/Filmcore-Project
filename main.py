@@ -1,4 +1,3 @@
-import collections
 from flask import Flask, render_template, redirect, url_for, request, flash
 import urllib.request, json 
 from flask import Flask
@@ -10,7 +9,7 @@ from urllib.request import Request, urlopen
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 import smtplib
 import databaseconn
-import requests
+
 
 
 #Flask app and key config declaration
@@ -235,7 +234,6 @@ def movie(movieid):
         for i in ratings:
             if i['Source'] == "Rotten Tomatoes":
                 rt_rating = i['Value']
-                print(i['Value'])
     
     except Exception:
         return redirect(url_for('catch'))
@@ -319,14 +317,49 @@ def watchlist():
 #Watchlist movie page
 @app.route("/watchlist/movie/<string:movieid>", methods = ['GET', 'POST'])
 def watchlist_movie(movieid):
+    
+    headers = {
+        "X-RapidAPI-Host": "utelly-tv-shows-and-movies-availability-v1.p.rapidapi.com",
+        "X-RapidAPI-Key": "ecd4a37478msh4fa35a0a8658b6bp14334cjsnfa15424a5067"
+        }
+    
     try:
+
         with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&i=' + movieid) as url:
             data = json.loads(url.read().decode())
-    
-        form = MovieDelete()
 
-        stringuser = str(usersid)
-        strmovie = str(movieid)
+            ratings = data["Ratings"]
+
+        rt_rating = "N/A"
+
+        for i in ratings:
+            if i['Source'] == "Rotten Tomatoes":
+                rt_rating = i['Value']
+    
+    except Exception:
+        return redirect(url_for('catch'))
+    
+    except_chk = False
+    replacement_data = {
+        "display_name": "NOT AVAILABLE FOR THIS MOVIE/TV", "id": "n/a", "url": "", "name": "", "icon": ""
+        }
+
+    try:        
+        req = Request('https://utelly-tv-shows-and-movies-availability-v1.p.rapidapi.com/idlookup?source=imdb&country=uk&source_id=' + movieid, headers = headers)
+        platform_data = json.loads(urlopen(req).read())
+        collection = platform_data["collection"]
+        locations = collection["locations"]    
+    
+    except Exception:
+        locations = replacement_data
+        except_chk = True
+    
+    form = MovieDelete()
+
+    stringuser = str(usersid)
+    strmovie = str(movieid)
+
+    try:
 
         if form.validate_on_submit():
             cursor.execute("DELETE FROM watchlist WHERE movieid = %(hold_mov)s AND usersid = %(hold_id)s", {"hold_mov": strmovie, "hold_id": stringuser}  )
@@ -336,7 +369,8 @@ def watchlist_movie(movieid):
     except Exception:
         return redirect(url_for('catch'))
 
-    return render_template('watchlist_movie.html', movies = data, form = form, signedin = signedin, usernames = usernames, usersid = usersid)
+    return render_template('watchlist_movie.html', movies = data, form = form, signedin = signedin, usernames = usernames, 
+    usersid = usersid, platform = locations, rt_rating = rt_rating,except_chk = except_chk)
 
 
 #Registration Page

@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container defpage"></div>
-<p1 class = "titles">{{usernames}}'s Watchlist</p1>
+
     <div>
         <div style="display: table; margin: 0 auto;">
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -16,15 +16,20 @@
         </div>
     </div>
     <div class="container maincon">
+        <h3 style="text-align: center; color: #AE4F61 ;">{{usernames}}'s Watchlist</h3>
         {% for row in wlist %}
         <article class="media content-section border-secondary searchpages">
-            <div class="media-body">
-                <a class="searchtitle" href="{{url_for('watchlist_movie',movieid = row[1])}}">{{ row[2] }}</a>
-                <div class="media-body">
-                <img src= "{{ row[3] }}" style="width: 5vw; height: 15vh;" />
-                <div class="media-body">
-                <small class="text yeartype">{{ row[4] }} : {{row[5]}} </small>
-          </article>
+            <div class="media-body"> 
+                <img src= "{{ row[3]}}" style="width: 5vw; height: 15vh;" />
+                <table style="display: inline; word-wrap: break-word;">
+                    <tr>
+                        <td><a class="searchtitle" href="{{url_for('watchlist_movie',movieid = row[1])}}">{{ row[2] }}</a></td>
+                    </tr>
+                    <tr>
+                        <td> <small class="text yeartype">{{ row[4] }} : {{row[5]}} </small></td>
+                    </tr>
+                </table>
+            </article>
         {% endfor %}
     </div>
 {% endblock content %}

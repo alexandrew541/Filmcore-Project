@@ -11,56 +11,85 @@
             </fieldset>
           </form>
 
-        <article class="media content-section border-secondary moviepages" style="width: 150vh;">
+          <article class="media content-section border-secondary moviepages" style="width: 150vh;">
           
-          <div class="media-body">
-            <div class="article-metadata">
-              <h3 style="color: #fff;">{{movies.Title}}</h3>
-              
-              <div class="media-body">
-              
-        <div class="row">
-          <div class="col-md-4">
-            <img src="{{movies.Poster}}" class="thumbnail">
+            <div class="media-body">
+              <div class="article-metadata">
+                <h3 style="color: #fff;">{{movies.Title}}</h3>
+                
+                <div class="media-body">
+                
+          <div class="row">
+            <div class="col-md-4">
+              <img src="{{movies.Poster}}" class="thumbnail">
+            </div>
+            <div class="col-md-8">
+              <ul class="list-group">
+                <li class="list-group-item movieinfo"><strong>Genre:</strong> {{movies.Genre}}</li>
+                <li class="list-group-item movieinfo"><strong>Type:</strong> {{movies.Type}}</li>
+                <li class="list-group-item movieinfo"><strong>Released:</strong> {{movies.Released}}</li>
+                <li class="list-group-item movieinfo"><strong>Rated:</strong> {{movies.Rated}}</li>
+                <li class="list-group-item movieinfo"><strong>Runtime:</strong> {{movies.Runtime}}</li>
+                <li class="list-group-item movieinfo"><strong>Actors:</strong> {{movies.Actors}}</li>
+                <li class="list-group-item movieinfo"><strong>Director:</strong> {{movies.Director}}</li>
+                <li class="list-group-item movieinfo"><strong>Writer:</strong> {{movies.Writer}}</li>
+                <li class="list-group-item movieinfo"><strong>Language:</strong> {{movies.Language}}</li>
+                
+              </ul>
+            </div>
+            <div class="well plotstyle">
+              <h4 style="color: #fff;">Plot</h4>
+              {{movies.Plot}}
+            </div>
           </div>
-          <div class="col-md-8">
+  
+          <div class="col-md-8" style="text-align: center; float:none; margin:auto; margin-bottom: 4vh;">
             <ul class="list-group">
-              <li class="list-group-item movieinfo"><strong>Genre:</strong> {{movies.Genre}}</li>
-              <li class="list-group-item movieinfo"><strong>Type:</strong> {{movies.Type}}</li>
-              <li class="list-group-item movieinfo"><strong>Released:</strong> {{movies.Released}}</li>
-              <li class="list-group-item movieinfo"><strong>Rated:</strong> {{movies.Rated}}</li>
-              <li class="list-group-item movieinfo"><strong>Runtime:</strong> {{movies.Runtime}}</li>
-              <li class="list-group-item movieinfo"><strong>Actors:</strong> {{movies.Actors}}</li>
-              <li class="list-group-item movieinfo"><strong>Director:</strong> {{movies.Director}}</li>
-              <li class="list-group-item movieinfo"><strong>Writer:</strong> {{movies.Writer}}</li>
-              <li class="list-group-item movieinfo"><strong>Language:</strong> {{movies.Language}}</li>
+              {% if except_chk == False %}
+                <li class="list-group-item movieinfo" style="text-align: center;"><strong>Available on:</strong></li>
+                <li class="list-group-item movieinfo">
+                {% for plat in platform %}
+                <a href="{{plat.url}}">
+                  <img src="{{ plat.icon }}"
+                  style="width: 5vw; height: 4vh;"> </a>
+                  &zwnj; &zwnj; &zwnj;
+                {% endfor %}
+              </li>
+              {%endif%}
+              {% if except_chk == True %}
+              <li class="list-group-item movieinfo" style="text-align: center;"><strong>Available on:</strong></li>
+                <li class="list-group-item movieinfo" style="text-align: center;">Details not available for this movie</li>
+              {%endif%} 
+              
               
             </ul>
           </div>
-          <div class="well plotstyle">
-            <h4 style="color: #fff;">Plot</h4>
-            {{movies.Plot}}
+  
+          <div class="row moviebtnstyle">
+            
+          <div class="col-md-4" style="margin-bottom: 5px;">
+            <ul class="list-group">
+              <li class="list-group-item movieinfo" style="text-align: center;"><strong>Ratings</strong></li>
+              <li class="list-group-item movieinfo"><strong>IMDB Rating:</strong> {{movies.imdbRating}} with {{movies.imdbVotes}} votes</li>
+              <li class="list-group-item movieinfo"><strong>Metacritic:</strong> {{ movies.Metascore }}</li>
+              <li class="list-group-item movieinfo"><strong>Rotton Tomatoes:</strong> {{ rt_rating }}</li>
+            </ul>
+            
           </div>
-        </div>
-        <div class="row moviebtnstyle">
-          
-        <div class="col-md-4" style="margin-bottom: 5px;">
-          <ul class="list-group">
-            <li class="list-group-item movieinfo" style="text-align: center;"><strong>Ratings</strong></li>
-            <li class="list-group-item movieinfo"><strong>IMDB Rating:</strong> {{movies.imdbRating}} with {{movies.imdbVotes}} votes</li>
-            <li class="list-group-item movieinfo"><strong>Internet Movie Database:</strong> {{ movies.Ratings[0].Value }}</li>
-            <li class="list-group-item movieinfo"><strong>Metacritic:</strong> {{ movies.Metascore }}</li>
-          </ul>
-        </div>
-        <div class="col-md-8" style="margin-bottom: 5px;">
-          <ul class="list-group">
-            <li class="list-group-item movieinfo" style="text-align: center;"><strong>Other Film Information</strong></li>
-            <li class="list-group-item movieinfo"><strong>Awards:</strong> {{movies.Awards}}</li>
-            <li class="list-group-item movieinfo"><strong>Country:</strong> {{ movies.Country }}</li>
-            <li class="list-group-item movieinfo"><strong>Box Office:</strong> {{ movies.BoxOffice}}</li>
-          </ul>
-        </div>
-        </div>
-        </article>
-<div class="container moviegap"></div>
-{% endblock content %}
+          <div class="col-md-8" style="margin-bottom: 5px;">
+            <ul class="list-group">
+              <li class="list-group-item movieinfo" style="text-align: center;"><strong>Other Film Information</strong></li>
+              <li class="list-group-item movieinfo"><strong>Awards:</strong> {{movies.Awards}}</li>
+              <li class="list-group-item movieinfo"><strong>Country:</strong> {{ movies.Country }}</li>
+              <li class="list-group-item movieinfo"><strong>Box Office:</strong> {{ movies.BoxOffice}}</li>
+            </ul>
+          </div>
+          </div>
+          </article>
+  
+          <div class="well plotstyle" style="background-color: #AFAFAF;">
+            
+          </div>
+  <div class="container moviegap"></div>
+  {% endblock content %}
+  
