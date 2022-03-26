@@ -11,29 +11,33 @@
               {% endfor %}
           {% endif %}
       {% endwith %}
-          </div>
+    </div>
         {% if (signedin == True) and (add == False) %}
-        <form method="POST" action="">
-          {{ form.hidden_tag() }}
-          <fieldset class="form-group">
-            <div class="form-group">
-                {{ form.submit(class="btn btn-default") }}
-                <a href="http://imdb.com/title/{{movies.imdbID}}" target="_blank" class="btn btn-imdb">IMDB</a>
-              </div>
-            </fieldset>
-          </form>
+          <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+              <div class="form-group" style="margin-left: 5vw;">
+                  <a href="http://imdb.com/title/{{movies.imdbID}}" target="_blank" class="btn btn-imdb">IMDB</a>
+                  {{ form.submit(class="btn btn-default") }}
+                </div>
+              </fieldset>
+            </form>
           {%endif%}
         {% if (signedin == True) and (add == True) %}
-          <div class="form-group">
-            <a href="#" class="btn btn-default disabled" role="button" aria-disabled="true" style="height: 41px;">Already in watchlist</a>
-            <a href="http://imdb.com/title/{{movies.imdbID}}" target="_blank" class="btn btn-imdb">IMDB</a>
-          </div>
+        <fieldset class="form-group">
+          <div class="form-group" style="margin-left: 5vw;">
+              <a href="http://imdb.com/title/{{movies.imdbID}}" target="_blank" class="btn btn-imdb">IMDB</a>
+              <a href="#" class="btn btn-default disabled" role="button" aria-disabled="true" style="height: 41px;">Already in watchlist</a>
+            </div>
+        </fieldset>  
         {%endif%}
         {% if (signedin == False) %}
-        <div class="form-group">
-          <a href="#" class="btn btn-default disabled" role="button" aria-disabled="true" style="height: 41px;">Add to watchlist</a>
-          <a href="http://imdb.com/title/{{movies.imdbID}}" target="_blank" class="btn btn-imdb">IMDB</a>
-        </div>
+        <fieldset class="form-group">
+          <div class="form-group" style="margin-left: 5vw;">
+            <a href="http://imdb.com/title/{{movies.imdbID}}" target="_blank" class="btn btn-imdb">IMDB</a>
+            <a href="#" class="btn btn-default disabled" role="button" aria-disabled="true" style="height: 41px;">Add to watchlist</a>
+          </div>
+        </fieldset>
         {%endif%} 
 
         <article class="media content-section border-secondary moviepages" style="width: 150vh;">
@@ -66,16 +70,30 @@
             <h4 style="color: #fff;">Plot</h4>
             {{movies.Plot}}
           </div>
-          <div class="well plotstyle" style="background-color: #fff;">
-            <h4 style="color: #fff;">Available on these platforms</h4>
-            {% for plat in platform %}
-            <a href="{{plat.url}}">
-              <img src="{{ plat.icon }}"
-              style="width: 5vw; height: 4vh;"> </a>
-              &zwnj; &zwnj; &zwnj;
-            {% endfor %}
-          </div>
         </div>
+
+        <div class="col-md-8" style="text-align: center; float:none; margin:auto; margin-bottom: 4vh;">
+          <ul class="list-group">
+            {% if except_chk == False %}
+              <li class="list-group-item movieinfo" style="text-align: center;"><strong>Available on:</strong></li>
+              <li class="list-group-item movieinfo">
+              {% for plat in platform %}
+              <a href="{{plat.url}}">
+                <img src="{{ plat.icon }}"
+                style="width: 5vw; height: 4vh;"> </a>
+                &zwnj; &zwnj; &zwnj;
+              {% endfor %}
+            </li>
+            {%endif%}
+            {% if except_chk == True %}
+            <li class="list-group-item movieinfo" style="text-align: center;"><strong>Available on:</strong></li>
+              <li class="list-group-item movieinfo" style="text-align: center;">Details not available for this movie</li>
+            {%endif%} 
+            
+            
+          </ul>
+        </div>
+
         <div class="row moviebtnstyle">
           
         <div class="col-md-4" style="margin-bottom: 5px;">
@@ -83,7 +101,9 @@
             <li class="list-group-item movieinfo" style="text-align: center;"><strong>Ratings</strong></li>
             <li class="list-group-item movieinfo"><strong>IMDB Rating:</strong> {{movies.imdbRating}} with {{movies.imdbVotes}} votes</li>
             <li class="list-group-item movieinfo"><strong>Metacritic:</strong> {{ movies.Metascore }}</li>
+            <li class="list-group-item movieinfo"><strong>Rotton Tomatoes:</strong> {{ rt_rating }}</li>
           </ul>
+          
         </div>
         <div class="col-md-8" style="margin-bottom: 5px;">
           <ul class="list-group">
@@ -95,6 +115,9 @@
         </div>
         </div>
         </article>
-      
+
+        <div class="well plotstyle" style="background-color: #AFAFAF;">
+          
+        </div>
 <div class="container moviegap"></div>
 {% endblock content %}

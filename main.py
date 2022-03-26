@@ -222,17 +222,42 @@ def movie(movieid):
         "X-RapidAPI-Host": "utelly-tv-shows-and-movies-availability-v1.p.rapidapi.com",
         "X-RapidAPI-Key": "ecd4a37478msh4fa35a0a8658b6bp14334cjsnfa15424a5067"
         }
+    
     try:
+
         with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&i=' + movieid) as url:
             data = json.loads(url.read().decode())
 
+            ratings = data["Ratings"]
+
+        rt_rating = "N/A"
+
+        for i in ratings:
+            if i['Source'] == "Rotten Tomatoes":
+                rt_rating = i['Value']
+                print(i['Value'])
+    
+    except Exception:
+        return redirect(url_for('catch'))
+    
+    except_chk = False
+    replacement_data = {
+        "display_name": "NOT AVAILABLE FOR THIS MOVIE/TV", "id": "n/a", "url": "", "name": "", "icon": ""
+        }
+
+    try:        
         req = Request('https://utelly-tv-shows-and-movies-availability-v1.p.rapidapi.com/idlookup?source=imdb&country=uk&source_id=' + movieid, headers = headers)
         platform_data = json.loads(urlopen(req).read())
         collection = platform_data["collection"]
         locations = collection["locations"]    
-        
-        stringuser = str(usersid)
+    
+    except Exception:
+        locations = replacement_data
+        except_chk = True
 
+    stringuser = str(usersid)
+
+    try:
         if usersid != '':
             
             cursor.execute("SELECT * FROM watchlist WHERE movieid = %(hold_mov)s AND usersid = %(hold_id)s", {"hold_mov": movieid , "hold_id": stringuser}  )
@@ -253,10 +278,9 @@ def movie(movieid):
         movieType = data['Type']
         movieYear = data['Year']
         movieID = movieid
-    
+
     except Exception:
-        return redirect(url_for('catch')) 
-    
+        return redirect(url_for('catch'))
 
     form = MovieSubmit()
     
@@ -271,7 +295,8 @@ def movie(movieid):
     except Exception:
         return redirect(url_for('catch')) 
 
-    return render_template('movie.html', movies = data, platform = locations, form = form, signedin = signedin, usernames = usernames, usersid = usersid, add = add)
+    return render_template('movie.html', movies = data, platform = locations, rt_rating = rt_rating, 
+    form = form, signedin = signedin, usernames = usernames, usersid = usersid, add = add, except_chk = except_chk)
 
 
 #Watchlist
