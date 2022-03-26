@@ -1,20 +1,16 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container movstyle"></div>
-        <a class="btn btn-danger moviebtn" href="{{ url_for('watchlist') }}">Back</a>
+        <form method="POST" action="">
+          {{ form.hidden_tag() }}
           <fieldset class="form-group">
-            <div class="form-group">
+            <div class="form-group" style="margin-left: 5vw;">
+                {{ form.submit(class="btn btn-default") }}
                 <a href="http://imdb.com/title/{{movies.imdbID}}" target="_blank" class="btn btn-imdb">IMDB</a>
               </div>
             </fieldset>
-            <form method="POST" action="">
-              {{ form.hidden_tag() }}
-              <fieldset class="form-group">
-                <div class="form-group">
-                    {{ form.submit(class="btn btn-default") }}
-                  </div>
-                </fieldset>
-              </form>
+          </form>
+
         <article class="media content-section border-secondary moviepages" style="width: 150vh;">
           
           <div class="media-body">

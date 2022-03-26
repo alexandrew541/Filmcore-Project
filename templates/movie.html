@@ -66,6 +66,15 @@
             <h4 style="color: #fff;">Plot</h4>
             {{movies.Plot}}
           </div>
+          <div class="well plotstyle" style="background-color: #fff;">
+            <h4 style="color: #fff;">Available on these platforms</h4>
+            {% for plat in platform %}
+            <a href="{{plat.url}}">
+              <img src="{{ plat.icon }}"
+              style="width: 5vw; height: 4vh;"> </a>
+              &zwnj; &zwnj; &zwnj;
+            {% endfor %}
+          </div>
         </div>
         <div class="row moviebtnstyle">
           
@@ -86,5 +95,6 @@
         </div>
         </div>
         </article>
+      
 <div class="container moviegap"></div>
 {% endblock content %}

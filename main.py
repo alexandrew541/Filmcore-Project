@@ -1,3 +1,4 @@
+import collections
 from flask import Flask, render_template, redirect, url_for, request, flash
 import urllib.request, json 
 from flask import Flask
@@ -9,6 +10,7 @@ from urllib.request import Request, urlopen
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 import smtplib
 import databaseconn
+import requests
 
 
 #Flask app and key config declaration
@@ -216,11 +218,19 @@ def search():
 #Movie Page
 @app.route("/movie/<string:movieid>", methods = ['GET', 'POST'])
 def movie(movieid):
-
+    headers = {
+        "X-RapidAPI-Host": "utelly-tv-shows-and-movies-availability-v1.p.rapidapi.com",
+        "X-RapidAPI-Key": "ecd4a37478msh4fa35a0a8658b6bp14334cjsnfa15424a5067"
+        }
     try:
         with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&i=' + movieid) as url:
             data = json.loads(url.read().decode())
 
+        req = Request('https://utelly-tv-shows-and-movies-availability-v1.p.rapidapi.com/idlookup?source=imdb&country=uk&source_id=' + movieid, headers = headers)
+        platform_data = json.loads(urlopen(req).read())
+        collection = platform_data["collection"]
+        locations = collection["locations"]    
+        
         stringuser = str(usersid)
 
         if usersid != '':
@@ -237,16 +247,16 @@ def movie(movieid):
         else:
             if usersid == '':
                 add = True
+
+        movieName = data['Title']
+        movieImage = data['Poster']
+        movieType = data['Type']
+        movieYear = data['Year']
+        movieID = movieid
     
     except Exception:
         return redirect(url_for('catch')) 
     
-
-    movieName = data['Title']
-    movieImage = data['Poster']
-    movieType = data['Type']
-    movieYear = data['Year']
-    movieID = movieid
 
     form = MovieSubmit()
     
@@ -261,7 +271,7 @@ def movie(movieid):
     except Exception:
         return redirect(url_for('catch')) 
 
-    return render_template('movie.html', movies = data, form = form, signedin = signedin, usernames = usernames, usersid = usersid, add = add)
+    return render_template('movie.html', movies = data, platform = locations, form = form, signedin = signedin, usernames = usernames, usersid = usersid, add = add)
 
 
 #Watchlist
