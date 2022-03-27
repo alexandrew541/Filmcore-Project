@@ -1,10 +1,12 @@
 LIST OF AP2 FEATURES AND REQUIREMENTS
 
+k_10ri6dy
+
+k_2ipefrim
 
 ------------MUST BE DONE----------
 
 Fix home styling
-Fix styling of movie/tv show pages
 
 Comment All Code
 
@@ -29,3 +31,4 @@ Add try catch back into some statements
 Add availability on other platforms API
 Search page layout changed
 Watchlist layout changed
+Fix styling of movie/tv show pages

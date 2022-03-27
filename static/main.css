@@ -149,7 +149,7 @@ a.article-title:hover {
 }
 
 .searchbars{
-  height: 60vh;
+  height: 50vh;
 }
 
 #parent {
@@ -202,6 +202,15 @@ a.article-title:hover {
  }
 
  .searchpages{
+   text-align: left;
+   float: left;
+   width: 35vw;
+   margin: 0.5vh;
+   background-color: #8c8c8c ;
+ }
+
+ .homepages{
+  
    text-align: left;
    float: left;
    width: 35vw;
@@ -381,4 +390,10 @@ input[type="text"] {
 
 .profile-box{
   margin-top: 5vh;
+}
+
+
+.homearticle{
+  background-color: #8d8d8d;
+  color: rgb(230, 73, 73);
 }

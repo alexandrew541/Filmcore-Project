@@ -1,3 +1,4 @@
+from traceback import print_tb
 from flask import Flask, render_template, redirect, url_for, request, flash
 import urllib.request, json 
 from flask import Flask
@@ -56,28 +57,29 @@ def home():
     cut_upcoming_data = ""
     
     try:
-        req = Request('https://imdb-api.com/en/API/MostPopularMovies/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+        req = Request('https://imdb-api.com/en/API/MostPopularMovies/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
         pop_mov_data = json.loads(urlopen(req).read())
-        cut_data = pop_mov_data["items"][0:5]
+        cut_data = pop_mov_data["items"][0:4]
 
-        tvreq = Request('https://imdb-api.com/en/API/MostPopularTVs/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+        tvreq = Request('https://imdb-api.com/en/API/MostPopularTVs/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
         pop_tv_data = json.loads(urlopen(tvreq).read())
-        cut_tv_data = pop_tv_data["items"][0:5]
+        cut_tv_data = pop_tv_data["items"][0:4]
 
-        theatreq = Request('https://imdb-api.com/en/API/InTheaters/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+        theatreq = Request('https://imdb-api.com/en/API/InTheaters/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
         theatr_data = json.loads(urlopen(theatreq).read())
-        cut_theatr_data = theatr_data["items"][0:5]
+        cut_theatr_data = theatr_data["items"][0:4]
 
-        upcomingreq = Request('https://imdb-api.com/en/API/ComingSoon/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+        upcomingreq = Request('https://imdb-api.com/en/API/ComingSoon/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
         upcoming_data = json.loads(urlopen(upcomingreq).read())
-        cut_upcoming_data = upcoming_data["items"][0:5]
+        cut_upcoming_data = upcoming_data["items"][0:4]
+
     
     except Exception:
         return redirect(url_for('catch'))
     
     
-    return render_template('home.html', signedin = signedin, data1 = cut_data, data2 = cut_tv_data, data3 = cut_theatr_data, 
-    data4 = cut_upcoming_data, usernames = usernames, usersid = usersid )
+    return render_template('home.html', signedin = signedin, data1 = cut_data, usernames = usernames, usersid = usersid, 
+    data2 = cut_tv_data, data3 = cut_theatr_data, data4 = cut_upcoming_data )
 
 
 #Most Popular Movies Page
@@ -85,7 +87,7 @@ def home():
 def popularmovies():
 
     try:
-        req = Request('https://imdb-api.com/en/API/MostPopularMovies/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+        req = Request('https://imdb-api.com/en/API/MostPopularMovies/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
         pop_mov_data = json.loads(urlopen(req).read())
         data = pop_mov_data["items"]
     
@@ -100,7 +102,7 @@ def popularmovies():
 def populartv():
 
     try:
-        tvreq = Request('https://imdb-api.com/en/API/MostPopularTVs/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+        tvreq = Request('https://imdb-api.com/en/API/MostPopularTVs/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
         pop_tv_data = json.loads(urlopen(tvreq).read())
         data = pop_tv_data["items"]
 
@@ -115,7 +117,7 @@ def populartv():
 def intheatres():
 
     try:
-        theatdata = Request('https://imdb-api.com/en/API/InTheaters/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+        theatdata = Request('https://imdb-api.com/en/API/InTheaters/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
         theatreq = json.loads(urlopen(theatdata).read())
         data = theatreq["items"]
 
@@ -130,7 +132,7 @@ def intheatres():
 def comingsoon():
 
     try:
-        upcomingreq = Request('https://imdb-api.com/en/API/ComingSoon/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+        upcomingreq = Request('https://imdb-api.com/en/API/ComingSoon/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
         upcoming_data = json.loads(urlopen(upcomingreq).read())
         data = upcoming_data["items"]
 
@@ -145,7 +147,7 @@ def comingsoon():
 def top250():
 
     try:
-        req = Request('https://imdb-api.com/en/API/Top250Movies/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+        req = Request('https://imdb-api.com/en/API/Top250Movies/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
         data = json.loads(urlopen(req).read())
         data = data["items"]
     
@@ -160,7 +162,7 @@ def top250():
 def top250tv():
 
     try:
-        req = Request('https://imdb-api.com/en/API/Top250TVs/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+        req = Request('https://imdb-api.com/en/API/Top250TVs/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
         data = json.loads(urlopen(req).read())
         data = data["items"]
     
