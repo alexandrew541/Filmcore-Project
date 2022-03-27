@@ -25,7 +25,7 @@ dbpwd = databaseconn.dbpwd
 dbport_id = databaseconn.dbport_id
 
 
-#Varible declaration
+#Global Varible declaration
 signedin = False
 usernames = ""
 usersid = ''
@@ -33,7 +33,7 @@ searchvalue = ''
 movieid = ""
 
 
-#Database Connection String
+#Database Connection String and declaring auto commit
 try:
     con = psycopg2.connect(host = hostname, dbname = database, user = dbusername, password = dbpwd, port = dbport_id)
     con.autocommit = True
@@ -50,32 +50,30 @@ def home():
     global searchvalue
     searchvalue = ''
 
-    hold = False
     cut_data = ""
     cut_theatr_data = ""
     cut_tv_data = ""
     cut_upcoming_data = ""
-    if hold == True:
+    
+    try:
+        req = Request('https://imdb-api.com/en/API/MostPopularMovies/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+        pop_mov_data = json.loads(urlopen(req).read())
+        cut_data = pop_mov_data["items"][0:5]
 
-        try:
-            req = Request('https://imdb-api.com/en/API/MostPopularMovies/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
-            pop_mov_data = json.loads(urlopen(req).read())
-            cut_data = pop_mov_data["items"][0:5]
+        tvreq = Request('https://imdb-api.com/en/API/MostPopularTVs/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+        pop_tv_data = json.loads(urlopen(tvreq).read())
+        cut_tv_data = pop_tv_data["items"][0:5]
 
-            tvreq = Request('https://imdb-api.com/en/API/MostPopularTVs/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
-            pop_tv_data = json.loads(urlopen(tvreq).read())
-            cut_tv_data = pop_tv_data["items"][0:5]
+        theatreq = Request('https://imdb-api.com/en/API/InTheaters/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+        theatr_data = json.loads(urlopen(theatreq).read())
+        cut_theatr_data = theatr_data["items"][0:5]
 
-            theatreq = Request('https://imdb-api.com/en/API/InTheaters/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
-            theatr_data = json.loads(urlopen(theatreq).read())
-            cut_theatr_data = theatr_data["items"][0:5]
-
-            upcomingreq = Request('https://imdb-api.com/en/API/ComingSoon/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
-            upcoming_data = json.loads(urlopen(upcomingreq).read())
-            cut_upcoming_data = upcoming_data["items"][0:5]
-        
-        except Exception:
-            return redirect(url_for('catch'))
+        upcomingreq = Request('https://imdb-api.com/en/API/ComingSoon/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
+        upcoming_data = json.loads(urlopen(upcomingreq).read())
+        cut_upcoming_data = upcoming_data["items"][0:5]
+    
+    except Exception:
+        return redirect(url_for('catch'))
     
     
     return render_template('home.html', signedin = signedin, data1 = cut_data, data2 = cut_tv_data, data3 = cut_theatr_data, 

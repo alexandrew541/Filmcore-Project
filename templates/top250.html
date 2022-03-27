@@ -10,19 +10,23 @@
             {% for post in data %}
             <article class="media content-section border-secondary searchpages">
                 <div class="media-body">
-                    <a class="searchtitle" style="color: white;"> {{ post.rank }}</a> 
-                    <img src= "{{ post.image }}" style="width: 5vw; height: 15vh;" />
-                    <table style="display: inline; word-wrap: break-word;">
-                        <tr>
-                            <td><a class="searchtitle" href="{{url_for('movie',movieid = post.id)}}">{{ post.title }}</a></td>
-                        </tr>
-                        <tr>
-                            <td> <small class="text yeartype">IMDB rating : {{post.imDbRating}} out of {{ post.imDbRatingCount }} votes </small></td>
-                        </tr>
-                        <tr>
-                            <td class="text yeartype" style="font-size: x-small;">Crew : {{ post.crew }} </td>
-                        </tr>
-                    </table>
+                    <div style="float: left; margin-right: 1vw;">
+                        <a class="searchtitle" style="color: white; font-size: large;"> {{ post.rank }}</a>
+                        <img src= "{{ post.image }}" style="width: 5vw; height: 15vh;" />
+                    </div> 
+                    <div style="width: 32vw;">
+                        <table style="word-wrap: break-word;">
+                            <tr>
+                                <td><a class="searchtitle" href="{{url_for('movie',movieid = post.id)}}">{{ post.fullTitle }}</a></td>
+                            </tr>
+                            <tr>
+                                <td> <small class="text yeartype">IMDB rating : {{post.imDbRating}} out of {{ post.imDbRatingCount }} votes </small></td>
+                            </tr>
+                            <tr>
+                                <td class="text yeartype" style="font-size: x-small;">Crew : {{ post.crew }} </td>
+                            </tr>
+                        </table>
+                    </div>
                    
                 <div class="media-body">
                     
