@@ -1,4 +1,4 @@
-from traceback import print_tb
+#Module Import
 from flask import Flask, render_template, redirect, url_for, request, flash
 import urllib.request, json 
 from flask import Flask
@@ -12,13 +12,12 @@ import smtplib
 import databaseconn
 
 
-
 #Flask app and key config declaration
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '7CA5293D0810257F680B2A6CAC9EB291B5405E4D4F42B9A1E26EDE9BAB50BE72'
 
 
-#Database Conn details
+#Database Connection details. Linked to databaseconn.py
 hostname = databaseconn.hostname
 database = databaseconn.database
 dbusername = databaseconn.dbusername
@@ -43,6 +42,7 @@ except Exception as error:
     flash("Database connection faulty", 'warning')
 
 
+#Home Page API calls. Only called once.
 try:
     #Most Popular Movie
     req = Request('https://imdb-api.com/en/API/MostPopularMovies/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
@@ -62,6 +62,7 @@ except Exception:
 @app.route("/")
 @app.route("/home", methods=['POST' , 'GET'])
 def home():
+    #Calling home page api results
     global searchvalue, cut_data, cut_tv_data
     searchvalue = ''
     
@@ -73,6 +74,7 @@ def home():
 @app.route("/popular-movies", methods=['GET'])
 def popularmovies():
 
+    #Popular Movies API call. Items collection trimmed from results
     try:
         req = Request('https://imdb-api.com/en/API/MostPopularMovies/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
         pop_mov_data = json.loads(urlopen(req).read())
@@ -88,6 +90,7 @@ def popularmovies():
 @app.route("/popular-tv", methods=['GET'])
 def populartv():
 
+    #Popular TV API call. Items collection trimmed from results
     try:
         tvreq = Request('https://imdb-api.com/en/API/MostPopularTVs/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
         pop_tv_data = json.loads(urlopen(tvreq).read())
@@ -103,6 +106,7 @@ def populartv():
 @app.route("/in-theatres", methods=['GET'])
 def intheatres():
 
+    #In theatres API call. Items collection trimmed from results
     try:
         theatdata = Request('https://imdb-api.com/en/API/InTheaters/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
         theatreq = json.loads(urlopen(theatdata).read())
@@ -118,6 +122,7 @@ def intheatres():
 @app.route("/coming-soon", methods=['GET'])
 def comingsoon():
 
+    #Coming soon API call. Items collection trimmed from results
     try:
         upcomingreq = Request('https://imdb-api.com/en/API/ComingSoon/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
         upcoming_data = json.loads(urlopen(upcomingreq).read())
@@ -133,6 +138,7 @@ def comingsoon():
 @app.route("/top250", methods=['GET'])
 def top250():
 
+    #Top250 Movies API call. Items collection trimmed from results
     try:
         req = Request('https://imdb-api.com/en/API/Top250Movies/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
         data = json.loads(urlopen(req).read())
@@ -148,6 +154,7 @@ def top250():
 @app.route("/top250tv", methods=['GET'])
 def top250tv():
 
+    #Top 250 tv shows API call. Items collection trimmed from results
     try:
         req = Request('https://imdb-api.com/en/API/Top250TVs/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
         data = json.loads(urlopen(req).read())
@@ -236,18 +243,22 @@ def movie(movieid):
         }
 
     try:
-               
+    #Platform availability API           
         req = Request('https://utelly-tv-shows-and-movies-availability-v1.p.rapidapi.com/idlookup?source=imdb&country=uk&source_id=' + movieid, headers = headers)
         platform_data = json.loads(urlopen(req).read())
+
+    #Accessing locations records inside api response
         collection = platform_data["collection"]
         locations = collection["locations"]    
     
+    #Error occurs, replacement data is shown
     except Exception:
         locations = replacement_data
         except_chk = True
 
     stringuser = str(usersid)
 
+    #Checking if the movie is found in the logged in users watchlist
     try:
         if usersid != '':
             
@@ -264,6 +275,7 @@ def movie(movieid):
             if usersid == '':
                 add = True
 
+    #Assigning values from ID search API call to variables
         movieName = data['Title']
         movieImage = data['Poster']
         movieType = data['Type']
@@ -275,6 +287,7 @@ def movie(movieid):
 
     form = MovieSubmit()
     
+    #Inserting a movie into a users watchlist
     try:
         if form.validate_on_submit():
 
@@ -295,6 +308,8 @@ def movie(movieid):
 def watchlist():
     if signedin == False:
         return redirect(url_for('login'))
+
+    #Return the users watchlist based on userid    
     try:
         fkuser_id = str(usersid)
         
@@ -310,19 +325,23 @@ def watchlist():
 #Watchlist movie page
 @app.route("/watchlist/movie/<string:movieid>", methods = ['GET', 'POST'])
 def watchlist_movie(movieid):
-    
+    #User must be logged in to access this page
+    if signedin == False:
+        return redirect(url_for('login'))
+
     headers = {
         "X-RapidAPI-Host": "utelly-tv-shows-and-movies-availability-v1.p.rapidapi.com",
         "X-RapidAPI-Key": "ecd4a37478msh4fa35a0a8658b6bp14334cjsnfa15424a5067"
         }
     
     try:
-
+    #ID search API call
         with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&i=' + movieid) as url:
             data = json.loads(url.read().decode())
 
             ratings = data["Ratings"]
 
+    #Catching retrieving movies with a Rotten Tomatoes score
         rt_rating = "N/A"
 
         for i in ratings:
@@ -331,18 +350,22 @@ def watchlist_movie(movieid):
     
     except Exception:
         return redirect(url_for('catch'))
-    
+
+    #Variables for Platform Check
     except_chk = False
     replacement_data = {
         "display_name": "NOT AVAILABLE FOR THIS MOVIE/TV", "id": "n/a", "url": "", "name": "", "icon": ""
         }
 
+    #Platform availability API  
     try:        
         req = Request('https://utelly-tv-shows-and-movies-availability-v1.p.rapidapi.com/idlookup?source=imdb&country=uk&source_id=' + movieid, headers = headers)
         platform_data = json.loads(urlopen(req).read())
+    
         collection = platform_data["collection"]
         locations = collection["locations"]    
     
+    #Error occurs, replacement data is shown
     except Exception:
         locations = replacement_data
         except_chk = True
@@ -353,7 +376,7 @@ def watchlist_movie(movieid):
     strmovie = str(movieid)
 
     try:
-
+    #Deleting a movie from a users watchlist
         if form.validate_on_submit():
             cursor.execute("DELETE FROM watchlist WHERE movieid = %(hold_mov)s AND usersid = %(hold_id)s", {"hold_mov": strmovie, "hold_id": stringuser}  )
             flash('Movie Deleted from watchlist!', 'success')
@@ -369,14 +392,20 @@ def watchlist_movie(movieid):
 #Registration Page
 @app.route("/register", methods=['GET', 'POST'])
 def register():
+    #User must be logged in to access this page
+    if signedin == False:
+        return redirect(url_for('login'))
+
     form = RegistrationForm()
     try:
         if form.validate_on_submit():
+        #Hashing password and storing it in utf8 format 
             hashedpw = bcrypt.hashpw(form.password.data.encode('utf-8'),bcrypt.gensalt())
             unhashedpw = hashedpw.decode('utf-8')
 
             global signedin, usernames, usersid
-
+        
+            #Fetching and storing data from form fields
             username = form.username.data
             pwd = unhashedpw
             email = form.email.data
@@ -384,19 +413,21 @@ def register():
             lastname = form.lastname.data
             user = username, pwd, email, firstname, lastname
 
-            
+            #Checking to see if the username is already being used
             cursor.execute("SELECT * FROM users WHERE username = %(hold_username)s", {"hold_username": username})
             if cursor.rowcount > 0:
                 flash('This username is already taken', 'warning')
                 return redirect(url_for('register', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
 
             else:
+                #Checking to see if the email is already being used
                 cursor.execute("SELECT * FROM users WHERE email = %(hold_email)s", {"hold_email": email})
 
                 if cursor.rowcount > 0:
                     flash('This email is already associated to another account!', 'warning')
                     return redirect(url_for('register', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
-            
+
+                #Inserting the users registration data into the users table
                 else:
                     insert = "INSERT INTO users(username,pwd,email,firstname,lastname) VALUES(%(hold_username)s,%(hold_pwd)s,%(hold_email)s,%(hold_firstname)s,%(hold_lastname)s)"
             
@@ -404,6 +435,7 @@ def register():
             
                     cursor.execute(insert, data)
 
+                    #Selecting the new account from the users table and using this account to sign in
                     cursor.execute("SELECT * FROM users WHERE username = %(hold_username)s AND email = %(hold_email)s", {"hold_username":username , "hold_email": email}  )
 
                     account = cursor.fetchone()
@@ -425,11 +457,12 @@ def register():
 #Profile Page
 @app.route("/profile/<int:usersid>", methods=['GET', 'POST'])
 def profile(usersid):
+    #User must be logged in to access this page
     try:
         if signedin == False:
-
             return redirect(url_for('login'))
         
+        #Finding logged in user account and returning profile information
         else:
             usernameid = str(usersid)
             cursor.execute("SELECT * FROM users WHERE userid = %(hold_id)s", {"hold_id": usernameid})
@@ -439,6 +472,7 @@ def profile(usersid):
 
         if form.validate_on_submit():
 
+            #Delete account function, deletes watchlist first to conform with foreign key rules
             if form.submit.data: 
                 cursor.execute("DELETE FROM watchlist WHERE usersid = %(hold_id)s", {"hold_id": usernameid})
                 cursor.execute("DELETE FROM users WHERE userid = %(hold_id)s", {"hold_id": usernameid})
@@ -446,6 +480,7 @@ def profile(usersid):
                 flash("Account has been deleted, Goodbye!",'info')
                 return redirect(url_for('logout'))
 
+            #Clear Watchlist function
             elif form.submit2.data:
                 cursor.execute("DELETE FROM watchlist WHERE usersid = %(hold_id)s", {"hold_id": usernameid})
                 flash("Watchlist has been cleared!",'success')
@@ -459,6 +494,7 @@ def profile(usersid):
 #Password Change Page
 @app.route("/change-password", methods=['GET', 'POST'])
 def password_change():
+    #User must be logged in to access this page
     if signedin == False:
         return redirect(url_for('login'))
     
@@ -466,20 +502,24 @@ def password_change():
 
     try:
         if form.validate_on_submit():
-            
+
+            #Retreieve user account information    
             usernameid = str(usersid)
             cursor.execute("SELECT * FROM users WHERE userid = %(hold_id)s", {"hold_id": usernameid})
             account = cursor.fetchone()
 
             pwd = account[2]
 
+            #Check the old password form input and the account password record
             hashedpw = bcrypt.checkpw(form.old_password.data.encode('utf-8'), pwd.encode('utf-8'))
 
             if hashedpw == True:
                 if account and hashedpw:
+                    #Hash the new password and store it in utf format.
                     new_hashedpw = bcrypt.hashpw(form.new_password.data.encode('utf-8'),bcrypt.gensalt())
                     new_unhashedpw = new_hashedpw.decode('utf-8')
 
+                    #Update user record with the new valid data
                     update_script = "UPDATE users SET pwd = %(hold_pwd)s WHERE userid = %(hold_id)s"
                     data = ({"hold_pwd": new_unhashedpw ,"hold_id": usernameid})
                     cursor.execute(update_script, data)
@@ -497,12 +537,14 @@ def password_change():
 
 #Verify the reset token function
 def verify_reset_token(token):
+    #Serialise secret key
     s = Serializer(app.config['SECRET_KEY'])
     try:
         user_id = s.loads(token)['user_id']
     except:
         return None
 
+    #Return user information with the token
     try:
         struser = str(user_id)
         
@@ -513,10 +555,14 @@ def verify_reset_token(token):
     except Exception:
         return redirect(url_for('catch'))
 
+
 #Email Confirm Page
 @app.route("/confirm-email", methods=['GET', 'POST'])
 def confirm_email():
+    #Token expiry time declaration
     expires_sec=1800
+
+    #User cannot be logged in to access this page
     if signedin == True:
         return redirect(url_for('home'))
     
@@ -526,6 +572,7 @@ def confirm_email():
         try:
             user_email = form.email.data
 
+            #Check if email provided is linked to an account
             cursor.execute("SELECT * FROM users WHERE email = %(hold_email)s", {"hold_email": user_email})
             account = cursor.fetchone()
 
@@ -535,9 +582,11 @@ def confirm_email():
             else:
                 account_id = account[0]
 
+                #Serialise secret key, expiry time provided. Compose a token consisting of the seralised key, along with a payload of the users account id
                 s = Serializer(app.config['SECRET_KEY'], expires_sec)
                 token = s.dumps({'user_id': account_id}).decode('utf-8')
 
+                #Email format sent to the users account
                 message = f"""
                 Subject: Filmcore Account Password Reset
 
@@ -550,7 +599,8 @@ def confirm_email():
                 Thanks 
                 Filmcore Support
                 """
-                
+            
+                #Email server, login, recipient, sender (service.firmcore@gmail.com) and message declared.
                 server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
                 server.login(databaseconn.emailcon, databaseconn.passwordcon)
 
@@ -575,32 +625,36 @@ def confirm_email():
 @app.route("/reset-password/<token>", methods=['GET', 'POST'])
 def reset_password(token):
     global signedin, usernames, usersid
+    #User cannot be logged in to access this page
     if signedin == True:
         return redirect(url_for('home'))
 
+    #Call verify reset token function with the token
     user = verify_reset_token(token)
+
+    #Expiry message if token is invalid or exceeded half an hour time limit
     if user is None:
         flash('That is an invalid or expired token', 'warning')
         return redirect(url_for('home'))
+
     form = PasswordReset()
+
     if form.validate_on_submit():
         try:
+            #Hash password field and encode it to utf8
             hashedpw = bcrypt.hashpw(form.password.data.encode('utf-8'),bcrypt.gensalt())
             unhashedpw = hashedpw.decode('utf-8')
 
             userids = str(user[0])
             
+            #Update user record with the updated password
             update_script = "UPDATE users SET pwd = %(hold_pwd)s WHERE userid = %(hold_id)s"
             data = ({"hold_pwd": unhashedpw, "hold_id": userids})
             cursor.execute(update_script, data)
 
-
-            signedin = True
-            usernames = user[1]
-            usersid = user[0]
-
+            #Redirect user to login page
             flash("Password has been reset!", 'success')
-            return redirect(url_for('home', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
+            return redirect(url_for('login'))
         
         except Exception:
             return redirect(url_for('catch'))
@@ -611,24 +665,32 @@ def reset_password(token):
 #Login Page
 @app.route("/login", methods=['GET', 'POST'])
 def login():
+    #User cannot be logged in to access this page
     global signedin
     if signedin == True:
         return redirect(url_for('home'))
+
     form = LoginForm()
+
     if form.validate_on_submit():
         try:
+            #Select user from user table based on email (email is unique)
             scriptvalues = form.email.data
             cursor.execute("SELECT * FROM users WHERE email = %(hold_email)s", {"hold_email": scriptvalues})
             account = cursor.fetchone()
+
+            #Check the form password input with account data
             hashedpw = bcrypt.checkpw(form.password.data.encode('utf-8'), account[2].encode('utf-8'))
             
+            #Log user in and redirect to homepage
             if account and hashedpw:
                 global usernames, usersid
                 signedin = True
                 usersid = account[0]
                 usernames = account[1]
                 return redirect(url_for('home'))
-                
+
+            #Unsuccessful login flash    
             else:
                 flash('Login Unsuccessful. Please check username and password', 'danger')
         
@@ -641,10 +703,12 @@ def login():
 #Logout Function
 @app.route("/logout", methods=['GET'])
 def logout():
+    #User must be logged in to access this page
     global signedin, usernames, usersid
     if signedin == False:
         return redirect(url_for('home'))
     else:
+        #Reset user variables and log user out
         signedin = False
         usernames = ""
         usersid = ''
