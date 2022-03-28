@@ -33,7 +33,6 @@ usersid = ''
 searchvalue = ''
 movieid = ""
 
-
 #Database Connection String and declaring auto commit
 try:
     con = psycopg2.connect(host = hostname, dbname = database, user = dbusername, password = dbpwd, port = dbport_id)
@@ -44,42 +43,30 @@ except Exception as error:
     flash("Database connection faulty", 'warning')
 
 
+try:
+    #Most Popular Movie
+    req = Request('https://imdb-api.com/en/API/MostPopularMovies/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
+    pop_mov_data = json.loads(urlopen(req).read())
+    cut_data = pop_mov_data["items"][0:5]
+
+    #Most Popular TV shows
+    tvreq = Request('https://imdb-api.com/en/API/MostPopularTVs/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
+    pop_tv_data = json.loads(urlopen(tvreq).read())
+    cut_tv_data = pop_tv_data["items"][0:5]
+
+except Exception:
+    redirect(url_for('catch'))
+
+
 #Home Page
 @app.route("/")
 @app.route("/home", methods=['POST' , 'GET'])
 def home():
-    global searchvalue
+    global searchvalue, cut_data, cut_tv_data
     searchvalue = ''
-
-    cut_data = ""
-    cut_theatr_data = ""
-    cut_tv_data = ""
-    cut_upcoming_data = ""
-    
-    try:
-        req = Request('https://imdb-api.com/en/API/MostPopularMovies/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
-        pop_mov_data = json.loads(urlopen(req).read())
-        cut_data = pop_mov_data["items"][0:4]
-
-        tvreq = Request('https://imdb-api.com/en/API/MostPopularTVs/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
-        pop_tv_data = json.loads(urlopen(tvreq).read())
-        cut_tv_data = pop_tv_data["items"][0:4]
-
-        theatreq = Request('https://imdb-api.com/en/API/InTheaters/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
-        theatr_data = json.loads(urlopen(theatreq).read())
-        cut_theatr_data = theatr_data["items"][0:4]
-
-        upcomingreq = Request('https://imdb-api.com/en/API/ComingSoon/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
-        upcoming_data = json.loads(urlopen(upcomingreq).read())
-        cut_upcoming_data = upcoming_data["items"][0:4]
-
-    
-    except Exception:
-        return redirect(url_for('catch'))
-    
     
     return render_template('home.html', signedin = signedin, data1 = cut_data, usernames = usernames, usersid = usersid, 
-    data2 = cut_tv_data, data3 = cut_theatr_data, data4 = cut_upcoming_data )
+    data2 = cut_tv_data)
 
 
 #Most Popular Movies Page
@@ -177,6 +164,7 @@ def top250tv():
 def search():
     global searchvalue
 
+    #Catching erroneous searchvalue values
     try:
         if searchvalue != '':
             pass
@@ -184,26 +172,28 @@ def search():
         elif searchvalue == ' ':
             return redirect(url_for('home'))
 
+    #Retrieving searchvalue and removing blank spaces    
         else:
             if searchvalue == '':
                 searchvalue = request.form.get("searches")
             if ' ' in searchvalue:
                 searchvalue = str(searchvalue).replace(' ', '_')
 
-        
         if searchvalue == '':
             return redirect(url_for('home'))
 
-
+    #Keyword Search API call
         with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&s=' + searchvalue) as url:
             data = json.loads(url.read().decode())
 
+    #No results found alert
         if data['Response'] == "False":
             flash("No results found", 'warning')
     
     except Exception:
         return redirect(url_for('catch')) 
 
+    #Removing _ from searchvalue to be displayed
     if '_' in searchvalue:
         displaysearch = str(searchvalue).replace('_', ' ') 
     else:
@@ -223,12 +213,13 @@ def movie(movieid):
         }
     
     try:
-
+    #ID search API call
         with urllib.request.urlopen('http://www.omdbapi.com?apikey=f720dfee&i=' + movieid) as url:
             data = json.loads(url.read().decode())
 
             ratings = data["Ratings"]
 
+    #Catching retrieving movies with a Rotten Tomatoes score
         rt_rating = "N/A"
 
         for i in ratings:
@@ -238,12 +229,14 @@ def movie(movieid):
     except Exception:
         return redirect(url_for('catch'))
     
+    #Variables for Platform Check
     except_chk = False
     replacement_data = {
         "display_name": "NOT AVAILABLE FOR THIS MOVIE/TV", "id": "n/a", "url": "", "name": "", "icon": ""
         }
 
-    try:        
+    try:
+               
         req = Request('https://utelly-tv-shows-and-movies-availability-v1.p.rapidapi.com/idlookup?source=imdb&country=uk&source_id=' + movieid, headers = headers)
         platform_data = json.loads(urlopen(req).read())
         collection = platform_data["collection"]

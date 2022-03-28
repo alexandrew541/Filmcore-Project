@@ -54,7 +54,7 @@
                         <div style="float: left; width: 28vh; display: flex; justify-content: center;">
                             <table style="word-wrap: break-word;">
                                 <tr>
-                                    <td> <a href="{{url_for('movie',movieid = post.id)}}"> <img src="{{ post.image }}" style="width: 10vw; height: 32vh;"> </a></td>
+                                    <td> <a href="{{url_for('movie',movieid = post.id)}}"> <img src="{{ post.image }}" style="width: 8vw; height: 26vh;"> </a></td>
                                 </tr>
                                 <tr>
                                     <td> <small class="text yeartype">{{ post.title }}</small></td>
@@ -87,80 +87,13 @@
                         <div style="float: left; width: 28vh; display: flex; justify-content: center;">
                             <table style="word-wrap: break-word;">
                                 <tr>
-                                    <td> <a href="{{url_for('movie',movieid = post2.id)}}"> <img src="{{ post2.image }}" style="width: 10vw; height: 32vh;"> </a></td>
+                                    <td> <a href="{{url_for('movie',movieid = post2.id)}}"> <img src="{{ post2.image }}" loading="lazy" style="width: 8vw; height: 26vh;"> </a></td>
                                 </tr>
                                 <tr>
                                     <td> <small class="text yeartype">{{ post2.title }}</small></td>
                                 </tr>
                                 <tr>
                                     <td class="text yeartype" style="font-size: x-small;">Rating : {{ post2.imDbRating }} </td>
-                                </tr>
-                            </table>
-                        </div>
-                    {% endfor %} 
-                </div> 
-            </div>
-        
-        </div>
-        
-    </div>
-    <div style="height: 4vh;"></div>
-
-    
-     <!--COMING SOON-->
-    <div class="media content-section border-secondary homearticle" style="width: 150vh;">
-            
-        <div class="col-md-13" style="margin-bottom: 5px;">
-            <ul class="list-group">
-            <a class="list-group-item movieinfo searchtitle" href="{{url_for('comingsoon')}}" style="text-align: center;"><strong>Coming Soon &#8594;</strong></a>
-            </ul>
-            <div>
-            <div style="height: 2vh;"></div>     
-                <div style="width: 144vh; display: flex; justify-content: center;">
-                    {% for post3 in data3 %}
-                        <div style="float: left; width: 28vh; display: flex; justify-content: center;">
-                            <table style="word-wrap: break-word;">
-                                <tr>
-                                    <td> <a href="{{url_for('movie',movieid = post3.id)}}"> <img src="{{ post3.image }}" style="width: 10vw; height: 32vh;"> </a></td>
-                                </tr>
-                                <tr>
-                                    <td> <small class="text yeartype">{{ post3.title }}</small></td>
-                                </tr>
-                                <tr>
-                                    <td class="text yeartype" style="font-size: x-small;">Rating : {{ post3.imDbRating }} </td>
-                                </tr>
-                            </table>
-                        </div>
-                    {% endfor %} 
-                </div> 
-            </div>
-        
-        </div>
-        
-    </div>
-    <div style="height: 4vh;"></div>
-
-    <!--IN THEATRE-->
-    <div class="media content-section border-secondary homearticle" style="width: 150vh;">
-        
-        <div class="col-md-13" style="margin-bottom: 5px;">
-            <ul class="list-group">
-            <a class="list-group-item movieinfo searchtitle" href="{{url_for('intheatres')}}" style="text-align: center;"><strong>In Theatres &#8594;</strong></a>
-            </ul>
-            <div>
-            <div style="height: 2vh;"></div>     
-                <div style="width: 144vh; display: flex; justify-content: center;">
-                    {% for post4 in data4 %}
-                        <div style="float: left; width: 28vh; display: flex; justify-content: center;">
-                            <table style="word-wrap: break-word;">
-                                <tr>
-                                    <td> <a href="{{url_for('movie',movieid = post4.id)}}"> <img src="{{ post4.image }}" style="width: 8vw; height: 26vh;"> </a></td>
-                                </tr>
-                                <tr>
-                                    <td> <small class="text yeartype">{{ post4.title }}</small></td>
-                                </tr>
-                                <tr>
-                                    <td class="text yeartype" style="font-size: x-small;">Rating : {{ post4.imDbRating }} </td>
                                 </tr>
                             </table>
                         </div>
