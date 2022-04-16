@@ -392,18 +392,17 @@ def watchlist_movie(movieid):
 #Registration Page
 @app.route("/register", methods=['GET', 'POST'])
 def register():
+    global signedin, usernames, usersid
     #User must be logged in to access this page
-    if signedin == False:
+    if signedin == True:
         return redirect(url_for('login'))
-
+        
     form = RegistrationForm()
     try:
         if form.validate_on_submit():
         #Hashing password and storing it in utf8 format 
             hashedpw = bcrypt.hashpw(form.password.data.encode('utf-8'),bcrypt.gensalt())
             unhashedpw = hashedpw.decode('utf-8')
-
-            global signedin, usernames, usersid
         
             #Fetching and storing data from form fields
             username = form.username.data
@@ -677,23 +676,29 @@ def login():
             #Select user from user table based on email (email is unique)
             scriptvalues = form.email.data
             cursor.execute("SELECT * FROM users WHERE email = %(hold_email)s", {"hold_email": scriptvalues})
-            account = cursor.fetchone()
-
-            #Check the form password input with account data
-            hashedpw = bcrypt.checkpw(form.password.data.encode('utf-8'), account[2].encode('utf-8'))
             
-            #Log user in and redirect to homepage
-            if account and hashedpw:
-                global usernames, usersid
-                signedin = True
-                usersid = account[0]
-                usernames = account[1]
-                return redirect(url_for('home'))
+            if cursor.rowcount > 0:
+                account = cursor.fetchone()
 
-            #Unsuccessful login flash    
+                #Check the form password input with account data
+                hashedpw = bcrypt.checkpw(form.password.data.encode('utf-8'), account[2].encode('utf-8'))
+                
+                #Log user in and redirect to homepage
+                if account and hashedpw:
+                    global usernames, usersid
+                    signedin = True
+                    usersid = account[0]
+                    usernames = account[1]
+                    return redirect(url_for('home'))
+
+                #Unsuccessful login flash    
+                else:
+                    flash('Login Unsuccessful. Please check username and password', 'danger')
+
             else:
-                flash('Login Unsuccessful. Please check username and password', 'danger')
-        
+                if cursor.rowcount == 0:
+                    flash('Login Unsuccessful. Email doesnt exist', 'danger')
+
         except Exception:
             return redirect(url_for('catch'))
     
