@@ -677,6 +677,7 @@ def login():
             scriptvalues = form.email.data
             cursor.execute("SELECT * FROM users WHERE email = %(hold_email)s", {"hold_email": scriptvalues})
             
+            #Catch non-existant emails
             if cursor.rowcount > 0:
                 account = cursor.fetchone()
 
