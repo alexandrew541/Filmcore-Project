@@ -36,15 +36,18 @@ movieid = ""
 try:
     con = psycopg2.connect(host = hostname, dbname = database, user = dbusername, password = dbpwd, port = dbport_id)
     con.autocommit = True
-    cursor = con.cursor()
 
 except Exception as error:
     flash("Database connection faulty", 'warning')
 
 
-#Home Page API calls. Only called once.
-try:
-    #Most Popular Movie
+#Home Page
+@app.route("/")
+@app.route("/home", methods=['POST' , 'GET'])
+def home():
+    global searchvalue
+
+    #Calling home page api results
     req = Request('https://imdb-api.com/en/API/MostPopularMovies/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
     pop_mov_data = json.loads(urlopen(req).read())
     cut_data = pop_mov_data["items"][0:5]
@@ -54,16 +57,6 @@ try:
     pop_tv_data = json.loads(urlopen(tvreq).read())
     cut_tv_data = pop_tv_data["items"][0:5]
 
-except Exception:
-    redirect(url_for('catch'))
-
-
-#Home Page
-@app.route("/")
-@app.route("/home", methods=['POST' , 'GET'])
-def home():
-    #Calling home page api results
-    global searchvalue, cut_data, cut_tv_data
     searchvalue = ''
     
     return render_template('home.html', signedin = signedin, data1 = cut_data, usernames = usernames, usersid = usersid, 
@@ -261,9 +254,9 @@ def movie(movieid):
     #Checking if the movie is found in the logged in users watchlist
     try:
         if usersid != '':
-            
+            cursor = con.cursor()
             cursor.execute("SELECT * FROM watchlist WHERE movieid = %(hold_mov)s AND usersid = %(hold_id)s", {"hold_mov": movieid , "hold_id": stringuser}  )
-
+            
             if cursor.rowcount > 0:
                 add = True
 
@@ -274,6 +267,8 @@ def movie(movieid):
         else:
             if usersid == '':
                 add = True
+
+        cursor.close()
 
     #Assigning values from ID search API call to variables
         movieName = data['Title']
@@ -290,12 +285,13 @@ def movie(movieid):
     #Inserting a movie into a users watchlist
     try:
         if form.validate_on_submit():
-
+            cursor = con.cursor()
             cursor.execute("INSERT INTO watchlist(movieid, moviename, movieimage, movieType, movieyear, usersID) VALUES(%(hold_id)s,%(hold_name)s,%(hold_image)s,%(hold_Type)s,%(hold_year)s,%(hold_ids)s)", 
             {"hold_id": movieID, "hold_name": movieName, "hold_image": movieImage, "hold_Type": movieType, "hold_year": movieYear, "hold_ids": stringuser} )
-            
+            cursor.close()
             flash("Movie added to watchlist", 'success')
-    
+            
+
     except Exception:
         return redirect(url_for('catch')) 
 
@@ -312,13 +308,15 @@ def watchlist():
     #Return the users watchlist based on userid    
     try:
         fkuser_id = str(usersid)
-        
+        cursor = con.cursor()
         cursor.execute("SELECT * FROM watchlist WHERE usersid = %(hold_id)s", {"hold_id": fkuser_id})
+        wlist = cursor.fetchall()
+        cursor.close()
 
     except Exception:
         return redirect(url_for('catch'))
 
-    wlist = cursor.fetchall()
+    
     return render_template('watchlist.html', signedin = signedin, usernames = usernames, usersid = usersid, wlist = wlist )
 
 
@@ -378,7 +376,9 @@ def watchlist_movie(movieid):
     try:
     #Deleting a movie from a users watchlist
         if form.validate_on_submit():
+            cursor = con.cursor()
             cursor.execute("DELETE FROM watchlist WHERE movieid = %(hold_mov)s AND usersid = %(hold_id)s", {"hold_mov": strmovie, "hold_id": stringuser}  )
+            cursor.close()
             flash('Movie Deleted from watchlist!', 'success')
             return redirect(url_for('watchlist'))
 
@@ -412,22 +412,28 @@ def register():
             lastname = form.lastname.data
             user = username, pwd, email, firstname, lastname
 
-            #Checking to see if the username is already being used
+            #Checking to see if the username is already being 
+            cursor = con.cursor()
             cursor.execute("SELECT * FROM users WHERE username = %(hold_username)s", {"hold_username": username})
+            
             if cursor.rowcount > 0:
                 flash('This username is already taken', 'warning')
+                cursor.close()
                 return redirect(url_for('register', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
 
             else:
                 #Checking to see if the email is already being used
+                
                 cursor.execute("SELECT * FROM users WHERE email = %(hold_email)s", {"hold_email": email})
 
                 if cursor.rowcount > 0:
                     flash('This email is already associated to another account!', 'warning')
+                    cursor.close()
                     return redirect(url_for('register', data = user, signedin = signedin, usernames = usernames, usersid = usersid))
 
                 #Inserting the users registration data into the users table
                 else:
+                    
                     insert = "INSERT INTO users(username,pwd,email,firstname,lastname) VALUES(%(hold_username)s,%(hold_pwd)s,%(hold_email)s,%(hold_firstname)s,%(hold_lastname)s)"
             
                     data = ({"hold_username": username, "hold_pwd": pwd, "hold_email": email, "hold_firstname": firstname, "hold_lastname": lastname})
@@ -442,6 +448,8 @@ def register():
                     signedin = True
                     usernames = username
                     usersid = account[0]
+
+                    cursor.close()
 
                     flash(f'Account created for {usernames}!', 'success')
 
@@ -463,26 +471,32 @@ def profile(usersid):
         
         #Finding logged in user account and returning profile information
         else:
+            cursor = con.cursor()
             usernameid = str(usersid)
             cursor.execute("SELECT * FROM users WHERE userid = %(hold_id)s", {"hold_id": usernameid})
             account = cursor.fetchone() 
+            cursor.close()
 
         form = ProfileForm()
 
         if form.validate_on_submit():
 
             #Delete account function, deletes watchlist first to conform with foreign key rules
-            if form.submit.data: 
+            if form.submit.data:
+                cursor = con.cursor() 
                 cursor.execute("DELETE FROM watchlist WHERE usersid = %(hold_id)s", {"hold_id": usernameid})
                 cursor.execute("DELETE FROM users WHERE userid = %(hold_id)s", {"hold_id": usernameid})
-                
+                cursor.close()
+
                 flash("Account has been deleted, Goodbye!",'info')
                 return redirect(url_for('logout'))
 
             #Clear Watchlist function
             elif form.submit2.data:
+                cursor = con.cursor()
                 cursor.execute("DELETE FROM watchlist WHERE usersid = %(hold_id)s", {"hold_id": usernameid})
                 flash("Watchlist has been cleared!",'success')
+                cursor.close()
                 
     except Exception:
         return redirect(url_for('catch')) 
@@ -504,8 +518,11 @@ def password_change():
 
             #Retreieve user account information    
             usernameid = str(usersid)
+
+            cursor = con.cursor()
             cursor.execute("SELECT * FROM users WHERE userid = %(hold_id)s", {"hold_id": usernameid})
             account = cursor.fetchone()
+            cursor.close()
 
             pwd = account[2]
 
@@ -514,6 +531,7 @@ def password_change():
 
             if hashedpw == True:
                 if account and hashedpw:
+                    cursor = con.cursor()
                     #Hash the new password and store it in utf format.
                     new_hashedpw = bcrypt.hashpw(form.new_password.data.encode('utf-8'),bcrypt.gensalt())
                     new_unhashedpw = new_hashedpw.decode('utf-8')
@@ -522,6 +540,8 @@ def password_change():
                     update_script = "UPDATE users SET pwd = %(hold_pwd)s WHERE userid = %(hold_id)s"
                     data = ({"hold_pwd": new_unhashedpw ,"hold_id": usernameid})
                     cursor.execute(update_script, data)
+                    cursor.close()
+
                     flash("Password Changed!", 'success')
                     return redirect(url_for('profile', usersid = usernameid))
                     
@@ -546,9 +566,12 @@ def verify_reset_token(token):
     #Return user information with the token
     try:
         struser = str(user_id)
-        
+
+        cursor = con.cursor()
         cursor.execute("SELECT * FROM users WHERE userid = %(hold_id)s", {"hold_id": struser})
         account = cursor.fetchone()
+        cursor.close()
+
         return account
 
     except Exception:
@@ -566,12 +589,13 @@ def confirm_email():
         return redirect(url_for('home'))
     
     form = EmailConfirm()
-
+    
     if form.validate_on_submit():
         try:
             user_email = form.email.data
 
             #Check if email provided is linked to an account
+            cursor = con.cursor()
             cursor.execute("SELECT * FROM users WHERE email = %(hold_email)s", {"hold_email": user_email})
             account = cursor.fetchone()
 
@@ -612,7 +636,8 @@ def confirm_email():
             
                 flash('An email has been sent with instructions to reset your password.', 'info')
                 return redirect(url_for('home'))
-            
+    
+            cursor.close()
         except Exception:
             return redirect(url_for('catch'))            
         
@@ -647,9 +672,11 @@ def reset_password(token):
             userids = str(user[0])
             
             #Update user record with the updated password
+            cursor = con.cursor()
             update_script = "UPDATE users SET pwd = %(hold_pwd)s WHERE userid = %(hold_id)s"
             data = ({"hold_pwd": unhashedpw, "hold_id": userids})
             cursor.execute(update_script, data)
+            cursor.close()
 
             #Redirect user to login page
             flash("Password has been reset!", 'success')
@@ -675,8 +702,10 @@ def login():
         try:
             #Select user from user table based on email (email is unique)
             scriptvalues = form.email.data
+
+            cursor = con.cursor()
             cursor.execute("SELECT * FROM users WHERE email = %(hold_email)s", {"hold_email": scriptvalues})
-            
+
             #Catch non-existant emails
             if cursor.rowcount > 0:
                 account = cursor.fetchone()
@@ -700,6 +729,7 @@ def login():
                 if cursor.rowcount == 0:
                     flash('Login Unsuccessful. Email doesnt exist', 'danger')
 
+            cursor.close()
         except Exception:
             return redirect(url_for('catch'))
     

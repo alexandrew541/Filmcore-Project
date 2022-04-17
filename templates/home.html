@@ -45,13 +45,13 @@
         
         <div class="col-md-13" style="margin-bottom: 5px;">
             <ul class="list-group">
-            <a class="list-group-item movieinfo searchtitle" href="{{url_for('popularmovies')}}" style="text-align: center;"><strong>Popular Movies &#8594;</strong></a>
+            <a class="list-group-item movieinfo searchtitle font-spec" href="{{url_for('popularmovies')}}" style="text-align: center;"><strong>Popular Movies &#8594;</strong></a>
             </ul>
             <div>
             <div style="height: 2vh;"></div>     
                 <div style="width: 144vh; display: flex; justify-content: center;">
                     {% for post in data1 %}
-                        <div style="float: left; width: 28vh; display: flex; justify-content: center;">
+                        <div style="float: left; width: 20vh; display: flex; margin-left: 4vh; margin-right: 4vh; justify-content: center;">
                             <table style="word-wrap: break-word;">
                                 <tr>
                                     <td> <a href="{{url_for('movie',movieid = post.id)}}"> <img src="{{ post.image }}" style="width: 8vw; height: 26vh;"> </a></td>
@@ -78,7 +78,7 @@
         
         <div class="col-md-13" style="margin-bottom: 5px;">
             <ul class="list-group">
-            <a class="list-group-item movieinfo searchtitle" href="{{url_for('populartv')}}" style="text-align: center;"><strong>Popular TV Shows &#8594;</strong></a>
+            <a class="list-group-item movieinfo searchtitle font-spec" href="{{url_for('populartv')}}" style="text-align: center;"><strong>Popular TV Shows &#8594;</strong></a>
             </ul>
             <div>
             <div style="height: 2vh;"></div>     

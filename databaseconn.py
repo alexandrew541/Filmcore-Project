@@ -9,4 +9,4 @@ dbport_id = '5432'
 
 #Reset Password email connection strings
 emailcon = "service.filmcore@gmail.com"
-passwordcon = "Beretta09"
+passwordcon = "filmcore2022"
