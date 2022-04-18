@@ -729,7 +729,7 @@ def login():
                 if cursor.rowcount == 0:
                     flash('Login Unsuccessful. Email doesnt exist', 'danger')
 
-            cursor.close()
+            cursor.close()   
         except Exception:
             return redirect(url_for('catch'))
     
