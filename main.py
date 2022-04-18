@@ -48,12 +48,12 @@ def home():
     global searchvalue
 
     #Calling home page api results
-    req = Request('https://imdb-api.com/en/API/MostPopularMovies/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
+    req = Request('https://imdb-api.com/en/API/MostPopularMovies/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
     pop_mov_data = json.loads(urlopen(req).read())
     cut_data = pop_mov_data["items"][0:5]
 
     #Most Popular TV shows
-    tvreq = Request('https://imdb-api.com/en/API/MostPopularTVs/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
+    tvreq = Request('https://imdb-api.com/en/API/MostPopularTVs/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
     pop_tv_data = json.loads(urlopen(tvreq).read())
     cut_tv_data = pop_tv_data["items"][0:5]
 
@@ -69,7 +69,7 @@ def popularmovies():
 
     #Popular Movies API call. Items collection trimmed from results
     try:
-        req = Request('https://imdb-api.com/en/API/MostPopularMovies/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
+        req = Request('https://imdb-api.com/en/API/MostPopularMovies/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
         pop_mov_data = json.loads(urlopen(req).read())
         data = pop_mov_data["items"]
     
@@ -85,7 +85,7 @@ def populartv():
 
     #Popular TV API call. Items collection trimmed from results
     try:
-        tvreq = Request('https://imdb-api.com/en/API/MostPopularTVs/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
+        tvreq = Request('https://imdb-api.com/en/API/MostPopularTVs/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
         pop_tv_data = json.loads(urlopen(tvreq).read())
         data = pop_tv_data["items"]
 
@@ -101,7 +101,7 @@ def intheatres():
 
     #In theatres API call. Items collection trimmed from results
     try:
-        theatdata = Request('https://imdb-api.com/en/API/InTheaters/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
+        theatdata = Request('https://imdb-api.com/en/API/InTheaters/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
         theatreq = json.loads(urlopen(theatdata).read())
         data = theatreq["items"]
 
@@ -117,7 +117,7 @@ def comingsoon():
 
     #Coming soon API call. Items collection trimmed from results
     try:
-        upcomingreq = Request('https://imdb-api.com/en/API/ComingSoon/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
+        upcomingreq = Request('https://imdb-api.com/en/API/ComingSoon/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
         upcoming_data = json.loads(urlopen(upcomingreq).read())
         data = upcoming_data["items"]
 
@@ -133,7 +133,7 @@ def top250():
 
     #Top250 Movies API call. Items collection trimmed from results
     try:
-        req = Request('https://imdb-api.com/en/API/Top250Movies/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
+        req = Request('https://imdb-api.com/en/API/Top250Movies/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
         data = json.loads(urlopen(req).read())
         data = data["items"]
     
@@ -149,7 +149,7 @@ def top250tv():
 
     #Top 250 tv shows API call. Items collection trimmed from results
     try:
-        req = Request('https://imdb-api.com/en/API/Top250TVs/k_2ipefrim', headers={'User-Agent': 'Mozilla/5.0'})
+        req = Request('https://imdb-api.com/en/API/Top250TVs/k_10ri6dyy', headers={'User-Agent': 'Mozilla/5.0'})
         data = json.loads(urlopen(req).read())
         data = data["items"]
     
@@ -723,11 +723,11 @@ def login():
 
                 #Unsuccessful login flash    
                 else:
-                    flash('Login Unsuccessful. Please check username and password', 'danger')
+                    flash('Login Unsuccessful. Please check email or password', 'danger')
 
             else:
                 if cursor.rowcount == 0:
-                    flash('Login Unsuccessful. Email doesnt exist', 'danger')
+                    flash('Login Unsuccessful. Please check email or password', 'danger')
 
             cursor.close()   
         except Exception:
