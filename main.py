@@ -259,16 +259,16 @@ def movie(movieid):
             
             if cursor.rowcount > 0:
                 add = True
+                cursor.close()
 
             else:
                 if cursor.rowcount == 0:
                     add = False
+                    cursor.close()
                     
         else:
             if usersid == '':
                 add = True
-
-        cursor.close()
 
     #Assigning values from ID search API call to variables
         movieName = data['Title']
@@ -277,6 +277,7 @@ def movie(movieid):
         movieYear = data['Year']
         movieID = movieid
 
+    
     except Exception:
         return redirect(url_for('catch'))
 
@@ -290,7 +291,7 @@ def movie(movieid):
             {"hold_id": movieID, "hold_name": movieName, "hold_image": movieImage, "hold_Type": movieType, "hold_year": movieYear, "hold_ids": stringuser} )
             cursor.close()
             flash("Movie added to watchlist", 'success')
-            
+            add = True
 
     except Exception:
         return redirect(url_for('catch')) 
@@ -412,7 +413,7 @@ def register():
             lastname = form.lastname.data
             user = username, pwd, email, firstname, lastname
 
-            #Checking to see if the username is already being 
+            #Checking to see if the username is already being used
             cursor = con.cursor()
             cursor.execute("SELECT * FROM users WHERE username = %(hold_username)s", {"hold_username": username})
             
@@ -660,6 +661,7 @@ def reset_password(token):
     if user is None:
         flash('That is an invalid or expired token', 'warning')
         return redirect(url_for('home'))
+        
 
     form = PasswordReset()
 
